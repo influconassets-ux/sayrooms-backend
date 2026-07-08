@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Booking {
+  id            Int      @id @default(autoincrement())
+  propertyId    Int?
+  propertyName  String
+  roomId        Int?
+  roomQuantity  Int      @default(1)
+  customerName  String
+  customerEmail String
+  customerPhone String
+  checkIn       DateTime
+  checkOut      DateTime
+  totalPrice    Float
+  createdAt     DateTime @default(now())
+  status        String   @default("pending") // pending, confirmed, cancelled
+}
+
+model Property {
+  id              Int            @id @default(autoincrement())
+  propertyName    String
+  propertyType    String
+  totalRooms      Int
+  maxGuests       Int
+  totalBathrooms  Int
+  pricePerNight   Float
+  
+  // Location
+  addressLine1    String
+  addressLine2    String?
+  city            String
+  state           String
+  pincode         String
+  country         String
+  latitude        Float
+  longitude       Float
+
+  // Property Images
+  images          Json?          // Array of URLs
+
+  // Relations
+  rooms           Room[]
+  nearbyPlaces    NearbyPlace[]
+  
+  // Amenities JSON
+  amenities       Json?          // Array of objects { category, items: [] }
+  
+  // Contacts
+  hostName        String
+  contactEmail    String
+  contactPhone    String
+  alternatePhone  String?
+  
+  // Details
+  description     String?
+  tags            Json?
+  propertyIdStr   String?
+  
+  // Rules
+  checkInTime     String
+  checkOutTime    String
+  petsAllowed     Boolean        @default(false)
+  smokingAllowed  Boolean        @default(false)
+  eventsAllowed   Boolean        @default(false)
+  unmarriedCouplesAllowed Boolean @default(false)
+  cancellationPolicy String?
+  houseRules      String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Room {
+  id            Int       @id @default(autoincrement())
+  propertyId    Int
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type          String
+  quantity      Int       @default(1)
+  price         Float
+  capacity      Int
+  size          String?
+  description   String?
+  images        Json?     // Array of URLs
+}
+
+model NearbyPlace {
+  id            Int       @id @default(autoincrement())
+  propertyId    Int
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name          String
+  distance      String
+}
+
+model DraftProperty {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
