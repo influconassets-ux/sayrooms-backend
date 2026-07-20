@@ -1,11 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const { Pool } = require('pg');
-
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const admin = require('../firebaseAdmin');
+const prisma = require('../prismaClient');
 
 exports.createBooking = async (req, res) => {
   try {
