@@ -25,6 +25,7 @@ app.use('/api/properties', require('./routes/properties'));
 app.use('/api/availability', require('./routes/availability'));
 app.use('/api/drafts', require('./routes/drafts'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/top-destinations', require('./routes/topDestinations'));
 
 app.get('/', (req, res) => {
   res.send('Sayrooms API Running');
