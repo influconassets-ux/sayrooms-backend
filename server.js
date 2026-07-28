@@ -4,6 +4,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
+const holidayPackagesRoutes = require('./routes/holidayPackages');
 
 const path = require('path');
 
@@ -26,6 +27,8 @@ app.use('/api/availability', require('./routes/availability'));
 app.use('/api/drafts', require('./routes/drafts'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/top-destinations', require('./routes/topDestinations'));
+app.use('/api/collections', require('./routes/collections'));
+app.use('/api/holiday-packages', holidayPackagesRoutes);
 
 app.get('/', (req, res) => {
   res.send('Sayrooms API Running');
