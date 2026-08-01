@@ -7,9 +7,13 @@ const connectionString = process.env.DATABASE_URL;
 // Configure pool to handle idle timeouts to prevent "ConnectionClosed" errors
 const pool = new Pool({ 
   connectionString,
-  idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-  connectionTimeoutMillis: 5000, // Wait 5 seconds for a connection
+  idleTimeoutMillis: 60000, // Close idle connections after 60 seconds
+  connectionTimeoutMillis: 15000, // Wait 15 seconds for a connection
   max: 10 // Limit max connections for this instance
+});
+
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 const adapter = new PrismaPg(pool);

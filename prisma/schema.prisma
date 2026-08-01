@@ -8,7 +8,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model Booking {
@@ -23,8 +23,12 @@ model Booking {
   checkIn       DateTime
   checkOut      DateTime
   totalPrice    Float
+  adults        Int      @default(2)
+  children      Int      @default(0)
   createdAt     DateTime @default(now())
   status        String   @default("pending") // pending, confirmed, cancelled
+  bookingType   String   @default("property") // property or package
+  packageDetails Json?   // Stores specific details like couples, families, extra children
 }
 
 model Property {
@@ -88,6 +92,8 @@ model Room {
   type          String
   quantity      Int       @default(1)
   price         Float
+  extraAdultPrice Float @default(0)
+  extraChildPrice Float @default(0)
   capacity      Int
   size          String?
   description   String?

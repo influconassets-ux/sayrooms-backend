@@ -109,6 +109,8 @@ router.post('/', (req, res, next) => {
           type: room.type || 'Standard Room',
           quantity: parseInt(room.count) || 1,
           price: parseFloat(room.price) || 0,
+          extraAdultPrice: parseFloat(room.extraAdultPrice) || 0,
+          extraChildPrice: parseFloat(room.extraChildPrice) || 0,
           capacity: parseInt(room.capacity) || 2,
           size: room.size || '',
           description: JSON.stringify(extraData),
@@ -272,6 +274,8 @@ router.put('/:id', upload.any(), async (req, res) => {
       return {
         type: room.type || 'Standard Room',
         price: parseFloat(room.price) || 0,
+        extraAdultPrice: parseFloat(room.extraAdultPrice) || 0,
+        extraChildPrice: parseFloat(room.extraChildPrice) || 0,
         capacity: parseInt(room.capacity) || 2,
         size: room.size || '',
         description: JSON.stringify(extraData),

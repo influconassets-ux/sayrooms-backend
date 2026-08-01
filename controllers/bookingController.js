@@ -3,7 +3,8 @@ const prisma = require('../prismaClient');
 
 exports.createBooking = async (req, res) => {
   try {
-    const { propertyId, propertyName, roomId, roomQuantity, customerName, customerEmail, customerPhone, checkIn, checkOut, totalPrice } = req.body;
+    console.log('CREATE BOOKING PAYLOAD:', req.body);
+    const { propertyId, propertyName, roomId, roomQuantity, adults, children, customerName, customerEmail, customerPhone, checkIn, checkOut, totalPrice, bookingType, packageDetails } = req.body;
     
     // Convert dates
     const inDate = new Date(checkIn);
@@ -33,25 +34,32 @@ exports.createBooking = async (req, res) => {
       }
     }
 
-    const newBooking = await prisma.booking.create({
-      data: {
-        propertyId: propertyId ? parseInt(propertyId) : null,
-        propertyName,
-        roomId: roomId ? parseInt(roomId) : null,
-        roomQuantity: roomQuantity ? parseInt(roomQuantity) : 1,
-        customerName,
-        customerEmail,
-        customerPhone,
-        checkIn: inDate,
-        checkOut: outDate,
-        totalPrice: parseFloat(totalPrice)
-      }
-    });
+    const data = {
+      propertyId: propertyId ? parseInt(propertyId) : null,
+      propertyName,
+      roomId: roomId ? parseInt(roomId) : null,
+      roomQuantity: roomQuantity ? parseInt(roomQuantity) : 1,
+      adults: adults ? parseInt(adults) : 2,
+      children: children ? parseInt(children) : 0,
+      customerName,
+      customerEmail,
+      customerPhone,
+      checkIn: inDate,
+      checkOut: outDate,
+      totalPrice: parseFloat(totalPrice),
+      bookingType: bookingType || 'property'
+    };
+    
+    if (packageDetails) {
+      data.packageDetails = packageDetails;
+    }
+
+    const newBooking = await prisma.booking.create({ data });
 
     res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
   } catch (error) {
     console.error('Error creating booking:', error);
-    res.status(500).json({ error: 'Failed to create booking' });
+    res.status(500).json({ error: 'An unexpected error occurred while processing your booking. Please try again later.' });
   }
 };
 
@@ -63,7 +71,7 @@ exports.getAllBookings = async (req, res) => {
     res.status(200).json(bookings);
   } catch (error) {
     console.error('Error fetching bookings:', error);
-    res.status(500).json({ error: 'Failed to fetch bookings' });
+    res.status(500).json({ error: 'Failed to fetch bookings. Please try again later.' });
   }
 };
 
@@ -76,7 +84,7 @@ exports.deleteBooking = async (req, res) => {
     res.status(200).json({ message: 'Booking deleted successfully' });
   } catch (error) {
     console.error('Error deleting booking:', error);
-    res.status(500).json({ error: 'Failed to delete booking' });
+    res.status(500).json({ error: 'Failed to delete booking. Please try again later.' });
   }
 };
 
@@ -86,6 +94,6 @@ exports.deleteAllBookings = async (req, res) => {
     res.status(200).json({ message: 'All bookings deleted successfully' });
   } catch (error) {
     console.error('Error deleting all bookings:', error);
-    res.status(500).json({ error: 'Failed to delete all bookings' });
+    res.status(500).json({ error: 'Failed to delete all bookings. Please try again later.' });
   }
 };

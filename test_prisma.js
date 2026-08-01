@@ -1,21 +1,30 @@
-const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const { Pool } = require('pg');
 require('dotenv').config();
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
-
-async function runTest() {
+async function main() {
   try {
-    const properties = await prisma.property.findMany();
-    console.log('SUCCESS. IDs in DB:', properties.map(p => p.id));
-  } catch (err) {
-    console.error('Prisma error:', err);
-  } finally {
-    await prisma.$disconnect();
+    const newBooking = await prisma.booking.create({
+      data: {
+        propertyId: null,
+        propertyName: 'Test Package',
+        roomId: null,
+        roomQuantity: 1,
+        adults: 2,
+        children: 0,
+        customerName: 'Test',
+        customerEmail: 'test',
+        customerPhone: 'test',
+        checkIn: new Date(),
+        checkOut: new Date(),
+        totalPrice: 100,
+        bookingType: 'package'
+      }
+    });
+    console.log("Success:", newBooking);
+  } catch (e) {
+    console.error("Prisma Error:", e);
   }
 }
 
-runTest();
+main().finally(() => prisma.$disconnect());

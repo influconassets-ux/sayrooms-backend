@@ -102,6 +102,8 @@ router.post('/', upload.any(), async (req, res) => {
       duration: req.body.duration,
       shortDescription: req.body.shortDescription,
       price: req.body.price,
+      pricingModel: req.body.pricingModel || 'per_person',
+      extraChildPrice: req.body.extraChildPrice ? Number(req.body.extraChildPrice) : 0,
       image: mainImageUrl,
       about: req.body.about,
       quickInfo: req.body.quickInfo ? JSON.parse(req.body.quickInfo) : [],
@@ -156,6 +158,8 @@ router.put('/:id', upload.any(), async (req, res) => {
     pkg.duration = req.body.duration !== undefined ? req.body.duration : pkg.duration;
     pkg.shortDescription = req.body.shortDescription !== undefined ? req.body.shortDescription : pkg.shortDescription;
     pkg.price = req.body.price || pkg.price;
+    if (req.body.pricingModel) pkg.pricingModel = req.body.pricingModel;
+    if (req.body.extraChildPrice !== undefined) pkg.extraChildPrice = Number(req.body.extraChildPrice);
     pkg.image = mainImageUrl;
     pkg.about = req.body.about !== undefined ? req.body.about : pkg.about;
     
