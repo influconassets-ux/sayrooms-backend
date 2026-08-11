@@ -74,6 +74,7 @@ exports.createBooking = async (req, res) => {
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
+      where: { paymentStatus: 'success' },
       orderBy: { createdAt: 'desc' }
     });
     res.status(200).json(bookings);
