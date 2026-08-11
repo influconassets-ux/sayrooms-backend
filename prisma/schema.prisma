@@ -29,6 +29,9 @@ model Booking {
   status        String   @default("pending") // pending, confirmed, cancelled
   bookingType   String   @default("property") // property or package
   packageDetails Json?   // Stores specific details like couples, families, extra children
+  cashfreeOrderId  String?
+  paymentSessionId String?
+  paymentStatus    String  @default("pending") // pending, success, failed
 }
 
 model Property {
