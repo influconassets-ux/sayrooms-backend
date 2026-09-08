@@ -2,6 +2,8 @@ const admin = require('../firebaseAdmin');
 const prisma = require('../prismaClient');
 const axios = require('axios');
 const crypto = require('crypto');
+const { sendBookingConfirmationEmail } = require('../utils/emailService');
+const { sendBookingConfirmationWhatsApp } = require('../utils/whatsappService');
 
 // Cashfree Configuration
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID;
@@ -217,6 +219,15 @@ exports.verifyPayment = async (req, res) => {
           paymentStatus: 'success' 
         }
       });
+
+      // Send notifications asynchronously
+      if (booking.customerEmail) {
+        sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
+      }
+      if (booking.customerPhone) {
+        sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
+      }
+
       res.status(200).json({ success: true, message: 'Payment verified and booking confirmed', status: 'PAID' });
     } else {
       await prisma.booking.update({
