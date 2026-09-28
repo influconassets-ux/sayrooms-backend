@@ -181,7 +181,7 @@ exports.createCashfreeOrder = async (req, res) => {
       'Accept': 'application/json'
     };
 
-    const response = await axios.post(`${CASHFREE_API_URL}/orders`, requestData, { headers });
+    const response = await axios.post(`${apiUrl}/orders`, requestData, { headers });
     
     const paymentSessionId = response.data.payment_session_id;
 
