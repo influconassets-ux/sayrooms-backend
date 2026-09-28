@@ -234,22 +234,23 @@ exports.verifyPayment = async (req, res) => {
     }
 
     if (orderStatus === 'PAID') {
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { 
-          status: 'confirmed', 
-          paymentStatus: 'success' 
+      if (booking.paymentStatus !== 'success') {
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: { 
+            status: 'confirmed', 
+            paymentStatus: 'success' 
+          }
+        });
+
+        // Send notifications asynchronously
+        if (booking.customerEmail) {
+          sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
         }
-      });
-
-      // Send notifications asynchronously
-      if (booking.customerEmail) {
-        sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
+        if (booking.customerPhone) {
+          sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
+        }
       }
-      if (booking.customerPhone) {
-        sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
-      }
-
       res.status(200).json({ success: true, message: 'Payment verified and booking confirmed', status: 'PAID' });
     } else {
       await prisma.booking.update({
@@ -301,21 +302,25 @@ exports.cashfreeWebhook = async (req, res) => {
 
       if (booking) {
         if (paymentStatus === 'SUCCESS') {
-          console.log(`✅ WEBHOOK VERIFIED! Order ${orderId} was securely confirmed by Cashfree in the background!`);
-          await prisma.booking.update({
-            where: { id: booking.id },
-            data: { 
-              status: 'confirmed', 
-              paymentStatus: 'success' 
-            }
-          });
+          if (booking.paymentStatus !== 'success') {
+            console.log(`✅ WEBHOOK VERIFIED! Order ${orderId} was securely confirmed by Cashfree in the background!`);
+            await prisma.booking.update({
+              where: { id: booking.id },
+              data: { 
+                status: 'confirmed', 
+                paymentStatus: 'success' 
+              }
+            });
 
-          // Send notifications asynchronously
-          if (booking.customerEmail) {
-            sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
-          }
-          if (booking.customerPhone) {
-            sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
+            // Send notifications asynchronously
+            if (booking.customerEmail) {
+              sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
+            }
+            if (booking.customerPhone) {
+              sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
+            }
+          } else {
+            console.log(`✅ Webhook Ignored: Order ${orderId} was already confirmed by the frontend redirect.`);
           }
         } else if (paymentStatus === 'FAILED' || paymentStatus === 'USER_DROPPED') {
           await prisma.booking.update({
