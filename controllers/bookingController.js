@@ -260,6 +260,7 @@ exports.cashfreeWebhook = async (req, res) => {
     const timestamp = req.headers['x-webhook-timestamp'];
     
     if (!signature || !timestamp) {
+      console.error('Webhook Error: Missing headers. Received headers:', req.headers);
       return res.status(400).send('Webhook Error: Missing headers');
     }
 
@@ -268,6 +269,10 @@ exports.cashfreeWebhook = async (req, res) => {
     const expectedSignature = crypto.createHmac('sha256', CASHFREE_SECRET_KEY).update(data).digest('base64');
 
     if (signature !== expectedSignature) {
+      console.error('Webhook Error: Invalid signature.');
+      console.error('Received signature:', signature);
+      console.error('Expected signature:', expectedSignature);
+      console.error('Using Secret Key (first 5 chars):', CASHFREE_SECRET_KEY ? CASHFREE_SECRET_KEY.substring(0, 5) : 'MISSING');
       return res.status(400).send('Webhook Error: Invalid signature');
     }
 
