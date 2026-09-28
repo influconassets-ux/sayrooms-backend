@@ -25,6 +25,13 @@ const limiter = rateLimit({
   max: 200, // limit each IP to 200 requests per windowMs
   message: { error: 'Too many requests from this IP, please try again later.' }
 });
+
+// Force browsers to not cache API responses locally (prevents the "2 refresh" issue)
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
 app.use('/api', limiter); // Apply only to API routes
 
 // Connect to MongoDB
