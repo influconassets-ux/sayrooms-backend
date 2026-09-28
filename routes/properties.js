@@ -5,6 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const prisma = require('../prismaClient');
 const cloudinary = require('cloudinary').v2;
+const NodeCache = require('node-cache');
+
+// Initialize cache for 15 minutes
+const cache = new NodeCache({ stdTTL: 900 });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -175,6 +179,7 @@ router.post('/', (req, res, next) => {
       }
     });
 
+    cache.flushAll(); // Clear all property caches on new addition
     res.status(201).json({ message: 'Property created successfully', property: newProperty });
   } catch (error) {
     console.error('Error creating property:', error);
@@ -342,6 +347,7 @@ router.put('/:id', upload.any(), async (req, res) => {
       }
     });
 
+    cache.flushAll(); // Clear all property caches on update
     res.status(200).json({ message: 'Property updated successfully', property: updatedProperty });
   } catch (error) {
     console.error('Error updating property:', error);
@@ -352,6 +358,10 @@ router.put('/:id', upload.any(), async (req, res) => {
 // GET /api/properties
 router.get('/', async (req, res) => {
   try {
+    if (cache.has('all_properties')) {
+      return res.status(200).json(cache.get('all_properties'));
+    }
+
     const properties = await prisma.property.findMany({
       include: {
         rooms: true,
@@ -359,6 +369,8 @@ router.get('/', async (req, res) => {
       },
       orderBy: { createdAt: 'desc' }
     });
+    
+    cache.set('all_properties', properties);
     res.status(200).json(properties);
   } catch (error) {
     console.error('Error fetching properties:', error);
@@ -374,6 +386,11 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid property ID' });
     }
 
+    const cacheKey = `property_${propertyId}`;
+    if (cache.has(cacheKey)) {
+      return res.status(200).json(cache.get(cacheKey));
+    }
+
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
       include: {
@@ -386,6 +403,7 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Property not found' });
     }
 
+    cache.set(cacheKey, property);
     res.status(200).json(property);
   } catch (error) {
     console.error('Error fetching property details:', error);
@@ -398,6 +416,7 @@ router.delete('/all', async (req, res) => {
   try {
     // Delete all properties (Prisma will handle cascading deletes for rooms/nearbyPlaces if configured)
     await prisma.property.deleteMany({});
+    cache.flushAll(); // Clear all property caches
     res.status(200).json({ message: 'All properties deleted successfully' });
   } catch (error) {
     console.error('Error deleting all properties:', error);
@@ -424,6 +443,7 @@ router.delete('/:id', async (req, res) => {
       where: { id: propertyId }
     });
 
+    cache.flushAll(); // Clear all property caches
     res.status(200).json({ message: 'Property deleted successfully' });
   } catch (error) {
     console.error('Error deleting property:', error);

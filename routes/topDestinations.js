@@ -5,6 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const TopDestination = require('../models/TopDestination');
+const NodeCache = require('node-cache');
+
+// Initialize cache for 15 minutes
+const cache = new NodeCache({ stdTTL: 900 });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -31,7 +35,17 @@ const upload = multer({ storage: storage });
 // Get all destinations
 router.get('/', async (req, res) => {
   try {
+    // 1. Check if we have cached data
+    if (cache.has('top_destinations')) {
+      return res.json(cache.get('top_destinations'));
+    }
+
+    // 2. If not in cache, get from database
     const destinations = await TopDestination.find().sort({ createdAt: -1 });
+    
+    // 3. Save to cache for future requests
+    cache.set('top_destinations', destinations);
+    
     res.json(destinations);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -89,6 +103,10 @@ router.post('/', upload.single('imageFile'), async (req, res) => {
     });
 
     const newDestination = await destination.save();
+    
+    // Invalidate cache so users see the new destination instantly
+    cache.del('top_destinations');
+    
     res.status(201).json(newDestination);
   } catch (err) {
     console.error('Error creating destination:', err);
@@ -133,6 +151,10 @@ router.put('/:id', upload.single('imageFile'), async (req, res) => {
     }
 
     const updatedDestination = await destination.save();
+    
+    // Invalidate cache so users see the updated details instantly
+    cache.del('top_destinations');
+    
     res.json(updatedDestination);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -148,6 +170,10 @@ router.delete('/:id', async (req, res) => {
     }
     
     await destination.deleteOne();
+    
+    // Invalidate cache so the deleted destination disappears instantly
+    cache.del('top_destinations');
+    
     res.json({ message: 'Deleted Destination' });
   } catch (err) {
     res.status(500).json({ message: err.message });

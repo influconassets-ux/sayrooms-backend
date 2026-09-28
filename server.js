@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
 const holidayPackagesRoutes = require('./routes/holidayPackages');
@@ -18,10 +19,26 @@ app.use(express.json({
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rate limiting to protect the free tier from being overwhelmed
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 requests per windowMs
+  message: { error: 'Too many requests from this IP, please try again later.' }
+});
+app.use('/api', limiter); // Apply only to API routes
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
+
+// Database connection resilience
+mongoose.connection.on('disconnected', () => {
+  console.warn('Lost MongoDB connection. Mongoose will attempt to reconnect...');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB error after initial connection:', err);
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -43,6 +60,12 @@ app.get('/api/keep-alive', (req, res) => {
 
 app.get('/', (req, res) => {
   res.send('Sayrooms API Running');
+});
+
+// Global Error Handler to prevent app crashes on unhandled exceptions
+app.use((err, req, res, next) => {
+  console.error('Unhandled Server Error:', err);
+  res.status(500).json({ error: 'An unexpected error occurred on the server.' });
 });
 
 const PORT = process.env.PORT || 5000;

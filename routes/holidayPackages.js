@@ -5,6 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const HolidayPackage = require('../models/HolidayPackage');
+const NodeCache = require('node-cache');
+
+// Initialize cache for 15 minutes
+const cache = new NodeCache({ stdTTL: 900 });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -46,7 +50,11 @@ const uploadToCloudinary = async (filePath) => {
 // Get all holiday packages
 router.get('/', async (req, res) => {
   try {
+    if (cache.has('all_packages')) {
+      return res.json(cache.get('all_packages'));
+    }
     const packages = await HolidayPackage.find().sort({ createdAt: -1 });
+    cache.set('all_packages', packages);
     res.json(packages);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -56,8 +64,13 @@ router.get('/', async (req, res) => {
 // Get unique collections
 router.get('/collections/distinct', async (req, res) => {
   try {
+    if (cache.has('distinct_collections')) {
+      return res.json(cache.get('distinct_collections'));
+    }
     const collections = await HolidayPackage.distinct('collections');
-    res.json(collections.filter(c => c && c.trim() !== ''));
+    const filtered = collections.filter(c => c && c.trim() !== '');
+    cache.set('distinct_collections', filtered);
+    res.json(filtered);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -126,6 +139,7 @@ router.post('/', upload.any(), async (req, res) => {
     });
 
     const newPkg = await pkg.save();
+    cache.flushAll(); // Clear all package caches when one is added
     res.status(201).json(newPkg);
   } catch (err) {
     console.error('Error creating holiday package:', err);
@@ -187,6 +201,7 @@ router.put('/:id', upload.any(), async (req, res) => {
     pkg.placesToVisit = placesToVisit;
 
     const updatedPkg = await pkg.save();
+    cache.flushAll(); // Clear all package caches when one is updated
     res.json(updatedPkg);
   } catch (err) {
     console.error('Error updating holiday package:', err);
@@ -203,6 +218,7 @@ router.delete('/:id', async (req, res) => {
     }
     
     await pkg.deleteOne();
+    cache.flushAll(); // Clear all package caches when one is deleted
     res.json({ message: 'Deleted Package' });
   } catch (err) {
     res.status(500).json({ message: err.message });
