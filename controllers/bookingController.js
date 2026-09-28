@@ -301,6 +301,7 @@ exports.cashfreeWebhook = async (req, res) => {
 
       if (booking) {
         if (paymentStatus === 'SUCCESS') {
+          console.log(`✅ WEBHOOK VERIFIED! Order ${orderId} was securely confirmed by Cashfree in the background!`);
           await prisma.booking.update({
             where: { id: booking.id },
             data: { 
