@@ -260,8 +260,10 @@ exports.cashfreeWebhook = async (req, res) => {
     const timestamp = req.headers['x-webhook-timestamp'];
     
     if (!signature || !timestamp) {
-      console.error('Webhook Error: Missing headers. Received headers:', req.headers);
-      return res.status(400).send('Webhook Error: Missing headers');
+      // Cashfree's Dashboard "Test" button sends a dummy ping WITHOUT signature headers just to see if the URL is alive.
+      // We must return 200 OK so Cashfree allows you to save the URL. No database updates happen here, so it is 100% secure.
+      console.log('Received dummy test ping from Cashfree Dashboard. Returning 200 OK.');
+      return res.status(200).send('Webhook Test Ping OK');
     }
 
     const rawBody = req.rawBody || JSON.stringify(req.body);
