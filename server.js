@@ -29,6 +29,7 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/top-destinations', require('./routes/topDestinations'));
 app.use('/api/collections', require('./routes/collections'));
 app.use('/api/holiday-packages', holidayPackagesRoutes);
+app.use('/api/partners', require('./routes/partners'));
 
 app.get('/', (req, res) => {
   res.send('Sayrooms API Running');

@@ -11,6 +11,21 @@ datasource db {
   provider  = "postgresql"
 }
 
+model PartnerRegistration {
+  id              Int      @id @default(autoincrement())
+  businessName    String
+  businessType    String
+  contactPerson   String
+  phone           String
+  email           String
+  location        String
+  details         String?
+  createdAt       DateTime @default(now())
+  status          String   @default("pending") // pending, reviewed, accepted, rejected
+
+  @@map("partner_registration")
+}
+
 model Booking {
   id            Int      @id @default(autoincrement())
   propertyId    Int?

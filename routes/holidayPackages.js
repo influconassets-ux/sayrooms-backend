@@ -53,6 +53,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get unique collections
+router.get('/collections/distinct', async (req, res) => {
+  try {
+    const collections = await HolidayPackage.distinct('collections');
+    res.json(collections.filter(c => c && c.trim() !== ''));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Get one package
 router.get('/:id', async (req, res) => {
   try {
@@ -104,6 +114,7 @@ router.post('/', upload.any(), async (req, res) => {
       price: req.body.price,
       pricingModel: req.body.pricingModel || 'per_person',
       extraChildPrice: req.body.extraChildPrice ? Number(req.body.extraChildPrice) : 0,
+      collections: req.body.collections !== undefined ? JSON.parse(req.body.collections) : [],
       image: mainImageUrl,
       about: req.body.about,
       quickInfo: req.body.quickInfo ? JSON.parse(req.body.quickInfo) : [],
@@ -160,6 +171,10 @@ router.put('/:id', upload.any(), async (req, res) => {
     pkg.price = req.body.price || pkg.price;
     if (req.body.pricingModel) pkg.pricingModel = req.body.pricingModel;
     if (req.body.extraChildPrice !== undefined) pkg.extraChildPrice = Number(req.body.extraChildPrice);
+    if (req.body.collections !== undefined) {
+      pkg.collections = JSON.parse(req.body.collections);
+      pkg.markModified('collections');
+    }
     pkg.image = mainImageUrl;
     pkg.about = req.body.about !== undefined ? req.body.about : pkg.about;
     
