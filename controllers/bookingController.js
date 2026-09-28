@@ -6,11 +6,7 @@ const { sendBookingConfirmationEmail } = require('../utils/emailService');
 const { sendBookingConfirmationWhatsApp } = require('../utils/whatsappService');
 
 // Cashfree Configuration
-const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID;
-const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
-const CASHFREE_API_URL = process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' 
-  ? 'https://api.cashfree.com/pg' 
-  : 'https://sandbox.cashfree.com/pg';
+// We will read keys dynamically inside the functions to ensure latest Render variables are used
 exports.createBooking = async (req, res) => {
   try {
     console.log('CREATE BOOKING PAYLOAD:', req.body);
@@ -163,15 +159,23 @@ exports.createCashfreeOrder = async (req, res) => {
       order_currency: 'INR',
       customer_details: {
         customer_id: `cust_${newBooking.id}`,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone
+        customer_name: customerName || "Guest",
+        customer_email: customerEmail || "guest@sayrooms.com",
+        customer_phone: customerPhone || "9999999999"
       }
     };
 
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const apiUrl = process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' 
+      ? 'https://api.cashfree.com/pg' 
+      : 'https://sandbox.cashfree.com/pg';
+
+    console.log(`Cashfree Auth Check - AppID: ${appId ? appId.substring(0,5) + '...' : 'MISSING'} | Secret: ${secretKey ? secretKey.substring(0,5) + '...' : 'MISSING'} | URL: ${apiUrl}`);
+
     const headers = {
-      'x-client-id': CASHFREE_APP_ID,
-      'x-client-secret': CASHFREE_SECRET_KEY,
+      'x-client-id': appId,
+      'x-client-secret': secretKey,
       'x-api-version': '2023-08-01',
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -204,14 +208,20 @@ exports.verifyPayment = async (req, res) => {
     
     if (!order_id) return res.status(400).json({ error: 'Order ID is required' });
 
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const apiUrl = process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' 
+      ? 'https://api.cashfree.com/pg' 
+      : 'https://sandbox.cashfree.com/pg';
+
     const headers = {
-      'x-client-id': CASHFREE_APP_ID,
-      'x-client-secret': CASHFREE_SECRET_KEY,
+      'x-client-id': appId,
+      'x-client-secret': secretKey,
       'x-api-version': '2023-08-01',
       'Accept': 'application/json'
     };
 
-    const response = await axios.get(`${CASHFREE_API_URL}/orders/${order_id}`, { headers });
+    const response = await axios.get(`${apiUrl}/orders/${order_id}`, { headers });
     const orderStatus = response.data.order_status;
 
     // Find the booking
@@ -268,13 +278,14 @@ exports.cashfreeWebhook = async (req, res) => {
 
     const rawBody = req.rawBody || JSON.stringify(req.body);
     const data = timestamp + rawBody;
-    const expectedSignature = crypto.createHmac('sha256', CASHFREE_SECRET_KEY).update(data).digest('base64');
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    const expectedSignature = crypto.createHmac('sha256', secretKey).update(data).digest('base64');
 
     if (signature !== expectedSignature) {
       console.error('Webhook Error: Invalid signature.');
       console.error('Received signature:', signature);
       console.error('Expected signature:', expectedSignature);
-      console.error('Using Secret Key (first 5 chars):', CASHFREE_SECRET_KEY ? CASHFREE_SECRET_KEY.substring(0, 5) : 'MISSING');
+      console.error('Using Secret Key (first 5 chars):', secretKey ? secretKey.substring(0, 5) : 'MISSING');
       return res.status(400).send('Webhook Error: Invalid signature');
     }
 
