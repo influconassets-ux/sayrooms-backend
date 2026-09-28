@@ -133,3 +133,13 @@ model DraftProperty {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  type      String   @default("text") // "text" or "video"
+  name      String
+  rating    Int      @default(5)
+  content   String   // Text content or Video URL
+  avatar    String?  // Avatar image URL (for text reviews)
+  createdAt DateTime @default(now())
+}

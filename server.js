@@ -11,7 +11,11 @@ const path = require('path');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  }
+}));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
@@ -30,6 +34,7 @@ app.use('/api/top-destinations', require('./routes/topDestinations'));
 app.use('/api/collections', require('./routes/collections'));
 app.use('/api/holiday-packages', holidayPackagesRoutes);
 app.use('/api/partners', require('./routes/partners'));
+app.use('/api/reviews', require('./routes/reviews'));
 
 app.get('/api/keep-alive', (req, res) => {
   res.status(200).json({ status: "alive", message: "Sayrooms backend is awake!" });

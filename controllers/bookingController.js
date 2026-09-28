@@ -86,6 +86,18 @@ exports.getAllBookings = async (req, res) => {
   }
 };
 
+exports.getAllAdminBookings = async (req, res) => {
+  try {
+    const bookings = await prisma.booking.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error('Error fetching all admin bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings. Please try again later.' });
+  }
+};
+
 exports.deleteBooking = async (req, res) => {
   try {
     const { id } = req.params;
@@ -239,5 +251,65 @@ exports.verifyPayment = async (req, res) => {
   } catch (error) {
     console.error('Error verifying payment:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to verify payment status' });
+  }
+};
+
+exports.cashfreeWebhook = async (req, res) => {
+  try {
+    const signature = req.headers['x-webhook-signature'];
+    const timestamp = req.headers['x-webhook-timestamp'];
+    
+    if (!signature || !timestamp) {
+      return res.status(400).send('Webhook Error: Missing headers');
+    }
+
+    const rawBody = req.rawBody || JSON.stringify(req.body);
+    const data = timestamp + rawBody;
+    const expectedSignature = crypto.createHmac('sha256', CASHFREE_SECRET_KEY).update(data).digest('base64');
+
+    if (signature !== expectedSignature) {
+      return res.status(400).send('Webhook Error: Invalid signature');
+    }
+
+    const payload = req.body;
+    
+    if (payload.type === 'PAYMENT_SUCCESS_WEBHOOK' || payload.type === 'PAYMENT_FAILED_WEBHOOK') {
+      const orderId = payload.data.order.order_id;
+      const paymentStatus = payload.data.payment.payment_status;
+
+      const booking = await prisma.booking.findFirst({
+        where: { cashfreeOrderId: orderId }
+      });
+
+      if (booking) {
+        if (paymentStatus === 'SUCCESS') {
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: { 
+              status: 'confirmed', 
+              paymentStatus: 'success' 
+            }
+          });
+
+          // Send notifications asynchronously
+          if (booking.customerEmail) {
+            sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
+          }
+          if (booking.customerPhone) {
+            sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
+          }
+        } else if (paymentStatus === 'FAILED' || paymentStatus === 'USER_DROPPED') {
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: { paymentStatus: 'failed' }
+          });
+        }
+      }
+    }
+
+    res.status(200).send('Webhook received successfully');
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    res.status(500).send('Webhook processing failed');
   }
 };

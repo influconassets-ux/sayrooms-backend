@@ -11,6 +11,12 @@ router.post('/create-cashfree-order', bookingController.createCashfreeOrder);
 // POST /api/bookings/verify-payment
 router.post('/verify-payment', bookingController.verifyPayment);
 
+// POST /api/bookings/webhook
+router.post('/webhook', bookingController.cashfreeWebhook);
+
+// GET /api/bookings/admin/all
+router.get('/admin/all', bookingController.getAllAdminBookings);
+
 // GET /api/bookings
 router.get('/', bookingController.getAllBookings);
 
