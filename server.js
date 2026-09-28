@@ -31,6 +31,10 @@ app.use('/api/collections', require('./routes/collections'));
 app.use('/api/holiday-packages', holidayPackagesRoutes);
 app.use('/api/partners', require('./routes/partners'));
 
+app.get('/api/keep-alive', (req, res) => {
+  res.status(200).json({ status: "alive", message: "Sayrooms backend is awake!" });
+});
+
 app.get('/', (req, res) => {
   res.send('Sayrooms API Running');
 });
