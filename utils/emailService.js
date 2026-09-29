@@ -131,7 +131,7 @@ const sendBookingConfirmationEmail = async (customerEmail, customerName, booking
 
   try {
     await sgMail.send(msg);
-    console.log(`Confirmation email sent to ${customerEmail}`);
+    console.log(`Confirmation email sent to ${customerEmail} (and BCC to booking@sayrooms.com)`);
   } catch (error) {
     console.error('Error sending confirmation email:', error);
     if (error.response) {
