@@ -52,4 +52,30 @@ router.post('/verify', async (req, res) => {
   }
 });
 
+// PUT /api/auth/profile
+// Updates the user's profile information
+router.put('/profile', async (req, res) => {
+  const { firebaseUid, displayName, email, phoneNumber, dob } = req.body;
+  
+  if (!firebaseUid) {
+    return res.status(400).json({ error: 'Missing firebaseUid' });
+  }
+
+  try {
+    let user = await User.findOne({ firebaseUid });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (displayName) user.displayName = displayName;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (dob) user.dob = dob;
+
+    await user.save();
+    res.status(200).json({ message: 'Profile updated', user });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

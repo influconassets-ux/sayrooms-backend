@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
   photoURL: {
     type: String,
   },
+  dob: {
+    type: String,
+  },
   provider: {
     type: String, // 'email', 'phone', 'facebook'
   },

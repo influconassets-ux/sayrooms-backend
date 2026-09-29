@@ -270,11 +270,9 @@ router.put('/:id', upload.any(), async (req, res) => {
         desc: room.description || ''
       };
       
-      // If no new images were uploaded for this room, use existing ones if they exist
-      let finalRoomImages = uploadedRoomImages;
-      if (finalRoomImages.length === 0 && existingProperty.rooms[index]) {
-        finalRoomImages = existingProperty.rooms[index].images;
-      }
+      // Combine existing images that were kept (from room.images) and newly uploaded images
+      let keptImages = Array.isArray(room.images) ? room.images : [];
+      let finalRoomImages = [...keptImages, ...uploadedRoomImages];
 
       return {
         type: room.type || 'Standard Room',
