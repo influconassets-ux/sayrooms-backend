@@ -10,6 +10,7 @@ const holidayPackagesRoutes = require('./routes/holidayPackages');
 const path = require('path');
 
 const app = express();
+app.set('trust proxy', 1); // Trust the reverse proxy (Render) to get correct IP for rate limiting
 
 app.use(cors());
 app.use(express.json({
