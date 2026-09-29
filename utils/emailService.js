@@ -12,6 +12,7 @@ const sendBookingConfirmationEmail = async (customerEmail, customerName, booking
 
   const msg = {
     to: customerEmail,
+    bcc: 'booking@sayrooms.com',
     from: process.env.SENDGRID_FROM_EMAIL, // Must be verified in SendGrid
     subject: `Booking Confirmation: ${propertyName} (Booking #${bookingId})`,
     text: `Hello ${customerName},\n\nYour booking for ${propertyName} is confirmed!\n\nCheck-In: ${new Date(checkIn).toLocaleDateString()}\nCheck-Out: ${new Date(checkOut).toLocaleDateString()}\n\nThank you for choosing Sayrooms!`,
