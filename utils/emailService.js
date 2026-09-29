@@ -140,6 +140,25 @@ const sendBookingConfirmationEmail = async (customerEmail, customerName, booking
   }
 };
 
+const sendPackageEnquiryEmail = async (enquiryData) => {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
+
+  const msg = {
+    to: 'booking@sayrooms.com',
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: `New Holiday Package Enquiry: ${enquiryData.packageName}`,
+    text: `New Enquiry Details:\nPackage: ${enquiryData.packageName}\nName: ${enquiryData.name}\nEmail: ${enquiryData.email}\nPhone: ${enquiryData.phone}\nTravel Date: ${enquiryData.travelDate}\nTravellers: ${enquiryData.travellersInfo}`,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Package enquiry email sent to admin for ${enquiryData.email}`);
+  } catch (error) {
+    console.error('Error sending package enquiry email:', error);
+  }
+};
+
 module.exports = {
-  sendBookingConfirmationEmail
+  sendBookingConfirmationEmail,
+  sendPackageEnquiryEmail
 };

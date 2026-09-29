@@ -6,9 +6,75 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const HolidayPackage = require('../models/HolidayPackage');
 const NodeCache = require('node-cache');
+const { sendPackageEnquiryEmail } = require('../utils/emailService');
+
+const PackageEnquiry = require('../models/PackageEnquiry');
 
 // Initialize cache for 15 minutes
 const cache = new NodeCache({ stdTTL: 900 });
+
+// Handle package enquiries
+router.post('/enquiry', async (req, res) => {
+  try {
+    const { packageName, name, email, phone, travelDate, travellersInfo } = req.body;
+    
+    // Save to Database
+    const newEnquiry = new PackageEnquiry({
+      packageName,
+      name,
+      email,
+      phone,
+      travelDate,
+      travellersInfo
+    });
+    await newEnquiry.save();
+
+    // Send Email to Admin
+    await sendPackageEnquiryEmail({
+      packageName,
+      name,
+      email,
+      phone,
+      travelDate,
+      travellersInfo
+    });
+
+    res.status(200).json({ message: 'Enquiry sent successfully', enquiry: newEnquiry });
+  } catch (err) {
+    console.error('Enquiry error:', err);
+    res.status(500).json({ message: 'Failed to send enquiry' });
+  }
+});
+
+// Admin: Get all package enquiries
+router.get('/enquiries', async (req, res) => {
+  try {
+    const enquiries = await PackageEnquiry.find().sort({ createdAt: -1 });
+    res.json(enquiries);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin: Delete a single enquiry
+router.delete('/enquiries/:id', async (req, res) => {
+  try {
+    await PackageEnquiry.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Enquiry deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin: Delete all enquiries
+router.delete('/enquiries', async (req, res) => {
+  try {
+    await PackageEnquiry.deleteMany({});
+    res.json({ message: 'All enquiries deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
