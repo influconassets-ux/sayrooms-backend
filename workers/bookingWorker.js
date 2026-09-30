@@ -26,24 +26,46 @@ const worker = new Worker('booking-notifications', async job => {
     // Fetch property and room details
     let propertyAddress = "Verified Sayrooms Property";
     let roomType = "Standard Room";
+    let hostName = "";
+    let hostContactEmail = "";
+    let hostContactPhone = "";
+    let hostAlternatePhone = "";
+    let checkInTime = "14:00";
+    let checkOutTime = "11:00";
+    let cancellationPolicy = "";
+    let houseRules = "";
 
     if (booking.propertyId) {
        const prop = await prisma.property.findUnique({ where: { id: booking.propertyId } });
        if (prop) {
            propertyAddress = `${prop.addressLine1}${prop.addressLine2 ? ', ' + prop.addressLine2 : ''}, ${prop.city}, ${prop.state}, ${prop.country} - ${prop.pincode}`;
-       }
-    }
-    
-    if (booking.roomId) {
-       const room = await prisma.room.findUnique({ where: { id: booking.roomId } });
-       if (room) {
-           roomType = room.type;
+           hostName = prop.hostName || "";
+           hostContactEmail = prop.contactEmail || "";
+           hostContactPhone = prop.contactPhone || "";
+           hostAlternatePhone = prop.alternatePhone || "";
+           checkInTime = prop.checkInTime || "14:00";
+           checkOutTime = prop.checkOutTime || "11:00";
+           cancellationPolicy = prop.cancellationPolicy || "";
+           houseRules = prop.houseRules || "";
        }
     }
 
-    // Attach to booking for PDF template
+    if (booking.roomId) {
+       const room = await prisma.room.findUnique({ where: { id: booking.roomId } });
+       if (room) { roomType = room.type; }
+    }
+
+    // Attach all details to booking for PDF template
     booking.propertyAddress = propertyAddress;
     booking.roomType = roomType;
+    booking.hostName = hostName;
+    booking.hostContactEmail = hostContactEmail;
+    booking.hostContactPhone = hostContactPhone;
+    booking.hostAlternatePhone = hostAlternatePhone;
+    booking.checkInTime = checkInTime;
+    booking.checkOutTime = checkOutTime;
+    booking.cancellationPolicy = cancellationPolicy;
+    booking.houseRules = houseRules;
 
     if (!booking.customerEmail) {
       console.log(`[Worker] Booking #${bookingId} has no email. Skipping.`);

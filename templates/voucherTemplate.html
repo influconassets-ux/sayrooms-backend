@@ -300,13 +300,49 @@
             </tr>
         </table>
 
+        <!-- ── PROPERTY MANAGER DETAILS ── -->
+        <div class="section-title">Property Manager / Host Details</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Host / Manager Name</td>
+                <td class="value"><strong>{{hostName}}</strong></td>
+            </tr>
+            <tr>
+                <td class="label">Primary Contact</td>
+                <td class="value">{{hostContactPhone}}</td>
+            </tr>
+            {{#if hostAlternatePhone}}
+            <tr>
+                <td class="label">Alternate Contact</td>
+                <td class="value">{{hostAlternatePhone}}</td>
+            </tr>
+            {{/if}}
+            <tr>
+                <td class="label">Host Email</td>
+                <td class="value">{{hostContactEmail}}</td>
+            </tr>
+            <tr>
+                <td class="label">Check-In Time</td>
+                <td class="value">After {{checkInTime}} hrs</td>
+            </tr>
+            <tr>
+                <td class="label">Check-Out Time</td>
+                <td class="value">Before {{checkOutTime}} hrs</td>
+            </tr>
+        </table>
+
         <!-- ── POLICIES ── -->
         <div class="policy-box">
             <h4>Important Information &amp; Policies</h4>
-            <p>&#8226; A valid Government-issued photo ID (Aadhar Card, Passport, or Driving License) is mandatory for all guests at the time of check-in. PAN cards are generally not accepted.</p>
-            <p>&#8226; Standard check-in time is 14:00 hrs and check-out time is 11:00 hrs. Early check-in and late check-out are subject to availability and may attract additional charges.</p>
+            {{#if cancellationPolicy}}
+            <p><strong>Cancellation Policy:</strong> {{cancellationPolicy}}</p>
+            {{/if}}
+            {{#if houseRules}}
+            <p><strong>House Rules:</strong> {{houseRules}}</p>
+            {{/if}}
+            <p>&#8226; A valid Government-issued photo ID (Aadhar Card, Passport, or Driving License) is mandatory for all guests at check-in. PAN cards are not accepted.</p>
             <p>&#8226; This voucher is valid only for the dates and property mentioned above. Please carry a printed or digital copy at check-in.</p>
-            <p>&#8226; Cancellation and refund policies are governed by the individual property's terms as listed on the Sayrooms platform. For any disputes, contact us at booking@sayrooms.com.</p>
+            <p>&#8226; For any booking support, contact us at booking@sayrooms.com.</p>
         </div>
 
     </div>
