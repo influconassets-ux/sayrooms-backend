@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient');
+const { sendPartnerRegistrationEmail } = require('../utils/emailService');
 
 // Create a new partner registration (Frontend form submission)
 router.post('/', async (req, res) => {
@@ -17,6 +18,17 @@ router.post('/', async (req, res) => {
         location,
         details
       }
+    });
+    
+    // Send email to admin
+    await sendPartnerRegistrationEmail({
+      businessName,
+      businessType,
+      contactPerson,
+      phone,
+      email,
+      location,
+      details
     });
     
     res.status(201).json(newPartner);

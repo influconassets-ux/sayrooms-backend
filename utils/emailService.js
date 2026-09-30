@@ -158,7 +158,26 @@ const sendPackageEnquiryEmail = async (enquiryData) => {
   }
 };
 
+const sendPartnerRegistrationEmail = async (partnerData) => {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) return;
+
+  const msg = {
+    to: 'booking@sayrooms.com',
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: `New Partner Registration: ${partnerData.businessName}`,
+    text: `New Partner Registration Details:\nBusiness Name: ${partnerData.businessName}\nBusiness Type: ${partnerData.businessType}\nContact Person: ${partnerData.contactPerson}\nPhone: ${partnerData.phone}\nEmail: ${partnerData.email}\nLocation: ${partnerData.location}\nDetails: ${partnerData.details}`,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Partner registration email sent to admin for ${partnerData.businessName}`);
+  } catch (error) {
+    console.error('Error sending partner registration email:', error);
+  }
+};
+
 module.exports = {
   sendBookingConfirmationEmail,
-  sendPackageEnquiryEmail
+  sendPackageEnquiryEmail,
+  sendPartnerRegistrationEmail
 };
