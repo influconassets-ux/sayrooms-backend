@@ -57,9 +57,7 @@ const worker = new Worker('booking-notifications', async job => {
     // 3. Send Email
     console.log(`[Worker] Sending email with attachment for booking #${bookingId}...`);
     await sendVoucherEmailWithAttachment(
-      booking.customerEmail, 
-      booking.customerName, 
-      booking.id, 
+      booking,
       pdfBuffer
     );
 
