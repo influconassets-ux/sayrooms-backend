@@ -29,3 +29,9 @@ uploads/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Puppeteer Chrome binary cache - DO NOT COMMIT
+.cache/
+
+# Test output files
+sample_voucher.pdf

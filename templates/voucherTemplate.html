@@ -4,468 +4,281 @@
     <meta charset="UTF-8">
     <title>Booking Voucher - Sayrooms</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
-        
+        /* 100% OFFLINE - No external fonts, images, or API calls */
+
         :root {
-            --primary: #1e3a8a; /* Deep Royal Blue */
+            --primary: #1e3a8a;
             --primary-light: #eff6ff;
-            --accent: #d97706; /* Elegant Gold/Amber */
+            --accent: #d97706;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --bg-page: #f8fafc;
-            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+            --white: #ffffff;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-page);
-            -webkit-font-smoothing: antialiased;
+            background-color: var(--bg);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         .page {
-            max-width: 850px;
+            max-width: 820px;
             margin: 0 auto;
-            background: var(--bg-card);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            background: var(--white);
         }
 
-        /* Hero Header Image */
-        .hero-banner {
-            width: 100%;
-            height: 220px;
-            background-image: linear-gradient(to bottom, rgba(30,58,138,0.6), rgba(30,58,138,0.9)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80');
-            background-size: cover;
-            background-position: center;
-            position: relative;
+        /* HERO - Pure CSS gradient, no image URL */
+        .hero {
+            background: linear-gradient(135deg, #0f2060 0%, #1e3a8a 40%, #2563eb 100%);
             padding: 40px 50px;
-            box-sizing: border-box;
-            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box {
+            background: rgba(255,255,255,0.95);
+            padding: 12px 22px;
+            border-radius: 10px;
+        }
+
+        .brand-box img { max-width: 140px; height: auto; display: block; }
+        .brand-text { font-size: 22px; font-weight: 900; color: #1e3a8a; letter-spacing: 2px; }
+
+        .hero-right { text-align: right; }
+        .hero-right .doc-title { font-size: 34px; font-weight: 700; color: #fff; letter-spacing: 1px; display: block; }
+        .hero-right .doc-subtitle { font-size: 13px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 3px; }
+
+        /* STATUS BAR */
+        .status-bar {
+            background: #16a34a;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* CONTENT */
+        .content { padding: 40px 50px; }
+
+        /* META ROW */
+        .meta-row {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-        }
-
-        .brand-logo {
-            background: rgba(255,255,255,0.95);
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .brand-logo img {
-            max-width: 140px;
-            height: auto;
-            display: block;
-        }
-
-        .hero-text {
-            text-align: right;
-        }
-
-        .hero-text h1 {
-            font-family: 'Playfair Display', serif;
-            margin: 0 0 5px 0;
-            font-size: 36px;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 1px;
-        }
-
-        .hero-text p {
-            margin: 0;
-            font-size: 15px;
-            color: rgba(255,255,255,0.8);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Main Content Container */
-        .content {
-            padding: 50px;
-            position: relative;
-        }
-
-        /* Boarding Pass / Ticket Style Booking ID Box */
-        .ticket-box {
-            position: absolute;
-            top: -40px;
-            right: 50px;
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            padding: 25px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border-top: 4px solid var(--accent);
-        }
-
-        .qr-code {
-            width: 70px;
-            height: 70px;
-        }
-
-        .ticket-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .ticket-info .ref {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 1px;
-            margin: 0;
-        }
-
-        /* Greeting */
-        .greeting {
-            margin-bottom: 40px;
-            margin-top: 20px;
-        }
-
-        .greeting h2 {
-            font-size: 28px;
-            margin: 0 0 10px 0;
-            font-weight: 600;
-        }
-        
-        .greeting p {
-            font-size: 16px;
-            color: var(--text-muted);
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* Grid Layout for details */
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .card {
             background: var(--primary-light);
-            border-radius: 16px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary);
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-bottom: 35px;
         }
 
-        .card-title {
-            font-size: 13px;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
+        .meta-item .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 1px; margin-bottom: 5px; }
+        .meta-item .val { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .meta-item .val-sm { font-size: 14px; font-weight: 600; color: var(--text-main); }
 
-        .info-group {
-            margin-bottom: 20px;
-        }
-        .info-group:last-child {
-            margin-bottom: 0;
-        }
+        /* GREETING */
+        .greeting { margin-bottom: 30px; }
+        .greeting h2 { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .greeting p { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
 
-        .info-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .info-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        
-        .info-value.large {
-            font-size: 20px;
-            font-family: 'Playfair Display', serif;
-            color: var(--primary);
-        }
-
-        /* Timeline / Stay Dates */
+        /* TIMELINE */
         .timeline {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: var(--bg-card);
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 25px 35px;
-            margin-bottom: 40px;
+            padding: 25px 30px;
+            margin-bottom: 35px;
+            background: var(--white);
         }
 
-        .time-box {
-            text-align: center;
-        }
+        .time-block { flex: 1; }
+        .time-block.right { text-align: right; }
+        .time-block .t-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .time-block .t-date { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .time-block .t-time { font-size: 13px; color: var(--accent); font-weight: 600; }
+        .time-arrow { padding: 0 30px; color: #94a3b8; font-size: 28px; font-weight: 300; }
 
-        .time-box .lbl {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
+        /* 2-COL GRID */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 35px; }
 
-        .time-box .date {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 3px;
-        }
+        .info-card { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 12px; overflow: hidden; }
+        .info-card-header { background: var(--primary); padding: 10px 20px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; }
+        .info-card-body { padding: 20px; }
 
-        .time-box .time {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 500;
-        }
+        .row { margin-bottom: 14px; }
+        .row:last-child { margin-bottom: 0; }
+        .row .r-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+        .row .r-value { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .row .r-value.big { font-size: 17px; color: var(--primary); }
+        .row .r-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-        .time-divider {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 0 30px;
-        }
+        /* PAYMENT */
+        .payment-wrapper { display: flex; justify-content: flex-end; padding-top: 30px; border-top: 2px dashed var(--border); margin-bottom: 40px; }
+        .payment-box { width: 340px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+        .p-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
+        .p-row .status-paid { color: #16a34a; font-weight: 700; }
+        .p-total { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; margin-top: 5px; border-top: 1px solid var(--border); }
+        .p-total .t-label { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .p-total .t-amount { font-size: 26px; font-weight: 800; color: var(--accent); }
 
-        .time-divider::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: repeating-linear-gradient(90deg, #cbd5e1, #cbd5e1 4px, transparent 4px, transparent 8px);
-        }
-
-        .time-divider svg {
-            background: var(--bg-card);
-            padding: 0 10px;
-            position: relative;
-            z-index: 2;
-            color: var(--primary);
-        }
-
-        /* Payment Summary Area */
-        .summary-wrapper {
-            border-top: 2px dashed #e2e8f0;
-            padding-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 40px;
-        }
-
-        .payment-box {
-            width: 350px;
-        }
-
-        .payment-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 15px;
-            color: var(--text-muted);
-        }
-
-        .payment-total {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .payment-total span:last-child {
-            color: var(--accent);
-        }
-
-        /* Footer */
-        .footer {
-            background: #ffffff;
-            color: #475569;
-            padding: 20px 50px 40px 50px;
-            font-size: 12px;
-            line-height: 1.7;
-            border-top: 1px solid #e2e8f0;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        .footer h4 {
-            color: #1e293b;
-            font-size: 14px;
-            margin: 0 0 15px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 40px;
-        }
-
-        .copyright {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-            color: #64748b;
-        }
+        /* FOOTER */
+        .footer { border-top: 1px solid var(--border); padding: 30px 50px 40px; font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-bottom: 25px; }
+        .footer h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 10px; }
+        .footer p { margin-bottom: 5px; }
+        .footer .contact-val { font-weight: 700; color: var(--primary); }
+        .copyright { border-top: 1px solid var(--border); padding-top: 20px; text-align: center; font-size: 11px; color: #94a3b8; }
     </style>
 </head>
 <body>
-    <div class="page">
-        <!-- Hero Header -->
-        <div class="hero-banner">
-            <div class="brand-logo">
-                {{#if logoBase64}}
-                    <img src="{{logoBase64}}" alt="Sayrooms Logo" />
-                {{else}}
-                    <h2 style="margin:0; color:#1e3a8a; font-size: 24px; font-weight:800;">SAYROOMS</h2>
-                {{/if}}
-            </div>
-            <div class="hero-text">
-                <h1>Itinerary</h1>
-                <p>Confirmed</p>
-            </div>
+<div class="page">
+
+    <!-- Hero: pure CSS gradient, ZERO external URLs -->
+    <div class="hero">
+        <div class="brand-box">
+            {{#if logoBase64}}
+                <img src="{{logoBase64}}" alt="Sayrooms" />
+            {{else}}
+                <span class="brand-text">SAYROOMS</span>
+            {{/if}}
         </div>
-
-        <div class="content">
-            <!-- Ticket Ref Box -->
-            <div class="ticket-box">
-                <div class="ticket-info">
-                    <h3>Booking Reference</h3>
-                    <p class="ref">#{{id}}</p>
-                </div>
-                <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=1e3a8a&data=SAYROOMS_BOOKING_{{id}}" alt="QR Code" />
-            </div>
-
-            <!-- Greeting -->
-            <div class="greeting">
-                <h2>Hello, {{customerName}}!</h2>
-                <p>We are delighted to confirm your reservation at <strong>{{propertyName}}</strong>. <br>Please find all the details of your upcoming stay below.</p>
-            </div>
-
-            <!-- Timeline -->
-            <div class="timeline">
-                <div class="time-box">
-                    <div class="lbl">Check-In</div>
-                    <div class="date">{{checkInFormatted}}</div>
-                    <div class="time">After 14:00</div>
-                </div>
-                <div class="time-divider">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-                <div class="time-box">
-                    <div class="lbl">Check-Out</div>
-                    <div class="date">{{checkOutFormatted}}</div>
-                    <div class="time">Before 11:00</div>
-                </div>
-            </div>
-
-            <!-- Cards -->
-            <div class="details-grid">
-                <!-- Guest Card -->
-                <div class="card">
-                    <div class="card-title">Guest Details</div>
-                    <div class="info-group">
-                        <div class="info-label">Primary Guest</div>
-                        <div class="info-value large">{{customerName}}</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Contact Information</div>
-                        <div class="info-value">{{customerPhone}}</div>
-                        <div class="info-value" style="font-weight:400; color: #64748b;">{{customerEmail}}</div>
-                    </div>
-                </div>
-
-                <!-- Room Card -->
-                <div class="card">
-                    <div class="card-title">Accommodation</div>
-                    <div class="info-group">
-                        <div class="info-label">Property</div>
-                        <div class="info-value" style="color: var(--primary);">{{propertyName}}</div>
-                        <div class="info-value" style="font-weight:400; font-size: 13px; color: var(--text-muted); margin-top:4px;">{{propertyAddress}}</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Room Type</div>
-                        <div class="info-value">{{roomType}}</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">Allocation</div>
-                        <div class="info-value">{{roomQuantity}} Room(s) | {{adults}} Adult(s), {{children}} Child(ren)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Payment Summary -->
-            <div class="summary-wrapper">
-                <div class="payment-box">
-                    <div class="payment-row">
-                        <span>Base Rate & Taxes</span>
-                        <span>Included</span>
-                    </div>
-                    <div class="payment-row">
-                        <span>Payment Status</span>
-                        <span style="color: #10b981; font-weight: 600; display:flex; align-items:center; gap:5px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                            Paid in Full
-                        </span>
-                    </div>
-                    <div class="payment-total">
-                        <span>Total Paid</span>
-                        <span>₹{{totalPrice}}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-grid">
-                <div>
-                    <h4>Important Policies</h4>
-                    <p style="margin:0 0 8px 0;">• A valid physical Government ID (Aadhar, Passport, Driving License) is mandatory for check-in. PAN cards are not accepted.</p>
-                    <p style="margin:0 0 8px 0;">• Early check-in and late check-out are subject to availability and may incur additional charges.</p>
-                    <p style="margin:0;">• Please review the cancellation policy specific to this property on our website.</p>
-                </div>
-                <div>
-                    <h4>Need Support?</h4>
-                    <p style="margin:0 0 8px 0;">We are available 24/7 to assist you with your stay.</p>
-                    <p style="margin:0 0 4px 0; color:#1e293b; font-weight:600;">Email: booking@sayrooms.com</p>
-                    <p style="margin:0; color:#1e293b; font-weight:600;">Web: www.sayrooms.com</p>
-                </div>
-            </div>
-            <div class="copyright">
-                &copy; 2026 Sayrooms. This is a system-generated document and does not require a physical signature.
-            </div>
+        <div class="hero-right">
+            <span class="doc-title">Booking Voucher</span>
+            <span class="doc-subtitle">Travel Confirmed</span>
         </div>
     </div>
+
+    <div class="status-bar">&#10003; &nbsp; Booking Confirmed &amp; Payment Received</div>
+
+    <div class="content">
+
+        <div class="meta-row">
+            <div class="meta-item">
+                <div class="lbl">Booking Reference</div>
+                <div class="val">#{{id}}</div>
+            </div>
+            <div class="meta-item" style="text-align:center;">
+                <div class="lbl">Booked On</div>
+                <div class="val-sm">{{bookingDateFormatted}}</div>
+            </div>
+            <div class="meta-item" style="text-align:right;">
+                <div class="lbl">Payment</div>
+                <div class="val-sm" style="color:#16a34a; font-weight:700;">Paid Online &#10003;</div>
+            </div>
+        </div>
+
+        <div class="greeting">
+            <h2>Hello, {{customerName}}!</h2>
+            <p>We are delighted to confirm your reservation at <strong>{{propertyName}}</strong>.<br>Your booking details are outlined below for your reference.</p>
+        </div>
+
+        <div class="timeline">
+            <div class="time-block">
+                <div class="t-label">Check-In</div>
+                <div class="t-date">{{checkInFormatted}}</div>
+                <div class="t-time">From 14:00 hrs</div>
+            </div>
+            <div class="time-arrow">&#8594;</div>
+            <div class="time-block right">
+                <div class="t-label">Check-Out</div>
+                <div class="t-date">{{checkOutFormatted}}</div>
+                <div class="t-time">Until 11:00 hrs</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="info-card">
+                <div class="info-card-header">Guest Details</div>
+                <div class="info-card-body">
+                    <div class="row">
+                        <div class="r-label">Primary Guest</div>
+                        <div class="r-value big">{{customerName}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="r-label">Phone</div>
+                        <div class="r-value">{{customerPhone}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="r-label">Email</div>
+                        <div class="r-value" style="font-size:13px;">{{customerEmail}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-header">Accommodation</div>
+                <div class="info-card-body">
+                    <div class="row">
+                        <div class="r-label">Property</div>
+                        <div class="r-value big">{{propertyName}}</div>
+                        <div class="r-sub">{{propertyAddress}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="r-label">Room Type</div>
+                        <div class="r-value">{{roomType}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="r-label">Rooms &amp; Guests</div>
+                        <div class="r-value">{{roomQuantity}} Room(s) &bull; {{adults}} Adult(s), {{children}} Child(ren)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-wrapper">
+            <div class="payment-box">
+                <div class="p-row">
+                    <span>Room Charges &amp; Taxes</span>
+                    <span>Included</span>
+                </div>
+                <div class="p-row">
+                    <span>Payment Mode</span>
+                    <span>Online (Cashfree)</span>
+                </div>
+                <div class="p-row">
+                    <span>Payment Status</span>
+                    <span class="status-paid">Paid in Full &#10003;</span>
+                </div>
+                <div class="p-total">
+                    <span class="t-label">Total Amount Paid</span>
+                    <span class="t-amount">&#8377;{{totalPrice}}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4>Important Policies</h4>
+                <p>&#8226; A valid Government-issued photo ID (Aadhar, Passport, Driving License) is mandatory at check-in.</p>
+                <p>&#8226; Standard check-in is from 14:00 hrs and check-out is before 11:00 hrs. Early/late timings are subject to availability.</p>
+                <p>&#8226; Cancellations are governed by the individual property's cancellation policy as listed on our website.</p>
+            </div>
+            <div>
+                <h4>Need Help?</h4>
+                <p>Our support team is available 24/7.</p>
+                <p class="contact-val">booking@sayrooms.com</p>
+                <p class="contact-val">www.sayrooms.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 Sayrooms &mdash; This is a computer-generated document and does not require a physical signature.
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

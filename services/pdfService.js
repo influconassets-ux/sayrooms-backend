@@ -40,6 +40,7 @@ const generateVoucherPDF = async (bookingData) => {
       logoBase64: logoBase64
     });
 
+    const isLinux = process.platform === 'linux';
     const browser = await puppeteer.launch({ 
       headless: true,
       args: [
@@ -47,12 +48,11 @@ const generateVoucherPDF = async (bookingData) => {
         '--disable-setuid-sandbox', 
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--no-zygote',
-        '--single-process'
+        ...(isLinux ? ['--no-zygote', '--single-process'] : [])
       ] 
     });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 });
     
     const pdfBuffer = await page.pdf({ 
       format: 'A4', 
