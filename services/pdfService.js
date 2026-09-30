@@ -52,7 +52,7 @@ const generateVoucherPDF = async (bookingData) => {
       ] 
     });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 60000 });
     
     const pdfBuffer = await page.pdf({ 
       format: 'A4', 
