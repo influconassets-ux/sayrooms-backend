@@ -36,6 +36,10 @@ const generateVoucherPDF = async (bookingData) => {
       (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) / (1000 * 60 * 60 * 24)
     ));
 
+    // Calculate price breakup
+    const basePrice = Math.round(bookingData.totalPrice / 1.12);
+    const taxes = bookingData.totalPrice - basePrice;
+
     // Inject dynamic data
     const html = template({
       ...bookingData,
@@ -44,6 +48,8 @@ const generateVoucherPDF = async (bookingData) => {
       bookingDateFormatted: bookingDate,
       logoBase64: logoBase64,
       nights: nights,
+      basePrice: basePrice,
+      taxes: taxes,
       year: new Date().getFullYear()
     });
 
