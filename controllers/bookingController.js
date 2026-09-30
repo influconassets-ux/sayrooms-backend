@@ -4,6 +4,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 const { sendBookingConfirmationEmail } = require('../utils/emailService');
 const { sendBookingConfirmationWhatsApp } = require('../utils/whatsappService');
+const { addBookingToQueue } = require('../queues/bookingQueue');
 
 // Cashfree Configuration
 // We will read keys dynamically inside the functions to ensure latest Render variables are used
@@ -243,10 +244,9 @@ exports.verifyPayment = async (req, res) => {
           }
         });
 
-        // Send notifications asynchronously
-        if (booking.customerEmail) {
-          sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
-        }
+        // Send notifications asynchronously via message queue
+        addBookingToQueue(booking.id).catch(console.error);
+        
         if (booking.customerPhone) {
           sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
         }
@@ -312,10 +312,9 @@ exports.cashfreeWebhook = async (req, res) => {
               }
             });
 
-            // Send notifications asynchronously
-            if (booking.customerEmail) {
-              sendBookingConfirmationEmail(booking.customerEmail, booking.customerName, booking.id, booking.checkIn, booking.checkOut, booking.propertyName).catch(console.error);
-            }
+            // Send notifications asynchronously via message queue
+            addBookingToQueue(booking.id).catch(console.error);
+            
             if (booking.customerPhone) {
               sendBookingConfirmationWhatsApp(booking.customerPhone, booking.customerName, booking.id, booking.propertyName).catch(console.error);
             }

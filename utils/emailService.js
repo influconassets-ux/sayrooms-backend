@@ -176,8 +176,47 @@ const sendPartnerRegistrationEmail = async (partnerData) => {
   }
 };
 
+const sendVoucherEmailWithAttachment = async (customerEmail, customerName, bookingId, pdfBuffer) => {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+    console.warn('SendGrid is not configured. Voucher email will not be sent.');
+    return;
+  }
+
+  const msg = {
+    to: customerEmail,
+    bcc: 'booking@sayrooms.com',
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: `Your Booking Voucher - Sayrooms (Booking #${bookingId})`,
+    text: `Hello ${customerName},\n\nYour booking is confirmed! Please find your booking voucher attached.\n\nThank you for choosing Sayrooms!`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
+        <h2>Booking Confirmed! 🎉</h2>
+        <p>Hi <strong>${customerName}</strong>,</p>
+        <p>We are thrilled to let you know that your reservation is locked in. Please find your booking voucher attached as a PDF document.</p>
+        <p>Thank you for choosing Sayrooms!</p>
+      </div>
+    `,
+    attachments: [
+      {
+        content: pdfBuffer.toString('base64'),
+        filename: `Sayrooms_Voucher_${bookingId}.pdf`,
+        type: 'application/pdf',
+        disposition: 'attachment'
+      }
+    ]
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Voucher email sent to ${customerEmail} with PDF attachment`);
+  } catch (error) {
+    console.error('Error sending voucher email:', error);
+  }
+};
+
 module.exports = {
   sendBookingConfirmationEmail,
   sendPackageEnquiryEmail,
-  sendPartnerRegistrationEmail
+  sendPartnerRegistrationEmail,
+  sendVoucherEmailWithAttachment
 };

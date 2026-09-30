@@ -7,6 +7,9 @@ const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
 const holidayPackagesRoutes = require('./routes/holidayPackages');
 
+// Start background workers
+require('./workers/bookingWorker');
+
 const path = require('path');
 
 const app = express();
