@@ -198,7 +198,7 @@ const sendVoucherEmailWithAttachment = async (customerEmail, customerName, booki
     `,
     attachments: [
       {
-        content: pdfBuffer.toString('base64'),
+        content: Buffer.from(pdfBuffer).toString('base64'),
         filename: `Sayrooms_Voucher_${bookingId}.pdf`,
         type: 'application/pdf',
         disposition: 'attachment'
