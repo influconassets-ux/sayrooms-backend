@@ -1,9 +1,7 @@
 const { Worker } = require('bullmq');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../prismaClient');
 const { generateVoucherPDF } = require('../services/pdfService');
 const { sendVoucherEmailWithAttachment } = require('../utils/emailService');
-
-const prisma = new PrismaClient();
 
 const connection = { 
   host: process.env.REDIS_HOST || '127.0.0.1', 
