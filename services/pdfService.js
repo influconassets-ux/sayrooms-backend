@@ -24,7 +24,7 @@ const generateVoucherPDF = async (bookingData) => {
     // Read Logo as base64
     let logoBase64 = '';
     try {
-      const logoPath = path.join(__dirname, '../../frontend/public/img/logo.png');
+      const logoPath = path.join(__dirname, '../assets/logo.png');
       const logoBuffer = fs.readFileSync(logoPath);
       logoBase64 = 'data:image/png;base64,' + logoBuffer.toString('base64');
     } catch(err) {
@@ -40,11 +40,16 @@ const generateVoucherPDF = async (bookingData) => {
       logoBase64: logoBase64
     });
 
-    // Launch browser and generate PDF
-    // Note: 'new' headles mode is recommended
     const browser = await puppeteer.launch({ 
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+      headless: true,
+      args: [
+        '--no-sandbox', 
+        '--disable-setuid-sandbox', 
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-zygote',
+        '--single-process'
+      ] 
     });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
