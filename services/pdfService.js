@@ -31,13 +31,20 @@ const generateVoucherPDF = async (bookingData) => {
       console.warn("Logo not found, fallback to empty string");
     }
 
+    // Calculate nights
+    const nights = Math.max(1, Math.round(
+      (new Date(bookingData.checkOut) - new Date(bookingData.checkIn)) / (1000 * 60 * 60 * 24)
+    ));
+
     // Inject dynamic data
     const html = template({
       ...bookingData,
       checkInFormatted: checkInDate,
       checkOutFormatted: checkOutDate,
       bookingDateFormatted: bookingDate,
-      logoBase64: logoBase64
+      logoBase64: logoBase64,
+      nights: nights,
+      year: new Date().getFullYear()
     });
 
     const isLinux = process.platform === 'linux';
