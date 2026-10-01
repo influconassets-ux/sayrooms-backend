@@ -153,6 +153,7 @@ model RoomInventory {
   price       Float?
   quantity    Int?
   isAvailable Boolean  @default(true)
+  blockReason String?
 
   @@unique([roomId, date])
 }

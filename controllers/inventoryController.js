@@ -62,12 +62,14 @@ exports.getInventoryCalendar = async (req, res) => {
       let currentPrice = room.price;
       let allottedRooms = room.quantity;
       let isAvailable = true;
+      let blockReason = null;
 
       const override = inventoryMap[dateKey];
       if (override) {
         if (override.price !== null) currentPrice = override.price;
         if (override.quantity !== null) allottedRooms = override.quantity;
         isAvailable = override.isAvailable;
+        blockReason = override.blockReason;
       }
 
       // Calculate booked rooms for this specific day
@@ -94,6 +96,7 @@ exports.getInventoryCalendar = async (req, res) => {
         booked: bookedCount,
         available: availableRooms,
         isManuallyBlocked: !isAvailable,
+        blockReason: blockReason,
         hasOverride: !!override
       });
     }
@@ -105,10 +108,10 @@ exports.getInventoryCalendar = async (req, res) => {
   }
 };
 
-// Update inventory for a specific day
+  // Update inventory for a specific day
 exports.updateInventoryDay = async (req, res) => {
   try {
-    const { roomId, date, price, quantity, isAvailable } = req.body;
+    const { roomId, date, price, quantity, isAvailable, blockReason } = req.body;
     
     if (!roomId || !date) {
       return res.status(400).json({ error: 'roomId and date are required' });
@@ -124,6 +127,7 @@ exports.updateInventoryDay = async (req, res) => {
       price: price !== undefined && price !== '' ? parseFloat(price) : null,
       quantity: quantity !== undefined && quantity !== '' ? parseInt(quantity) : null,
       isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
+      blockReason: isAvailable === false ? (blockReason || null) : null,
     };
 
     const updated = await prisma.roomInventory.upsert({
