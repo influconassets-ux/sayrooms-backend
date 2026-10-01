@@ -4,217 +4,105 @@
     <meta charset="UTF-8">
     <title>Booking Voucher - Sayrooms</title>
     <style>
-        /* 100% OFFLINE - No external fonts, images, or API calls */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; background: #ffffff; color: #333333; font-size: 11.5px; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { max-width: 820px; margin: 0 auto; padding: 30px 45px; }
+        
+        .top-info { display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: #111; margin-bottom: 25px; text-transform: uppercase; }
+        
+        .header-content { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+        .logo img { max-width: 130px; max-height: 80px; display: block; }
+        .brand-text { font-size: 24px; font-weight: 800; color: #111; }
+        
+        .property-header-info { text-align: left; max-width: 400px; font-size: 11px; color: #444; line-height: 1.4; }
+        .property-header-info h2 { font-size: 14px; margin-bottom: 4px; color: #111; font-weight: 700; }
+        
+        .banner { border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding: 12px 0; color: #0d9488; font-weight: 600; font-size: 12px; margin-bottom: 35px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
-            font-size: 13px;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+        .greeting { margin-bottom: 40px; }
+        .greeting-badge { display: inline-block; font-size: 10px; font-weight: 700; color: #111; margin-bottom: 20px; text-transform: uppercase; }
+        .greeting-badge::before { content: "●"; color: #111; margin-right: 6px; font-size: 8px; vertical-align: middle; }
+        .greeting-hi { color: #444; font-size: 12.5px; margin-bottom: 8px; }
+        .greeting-title { font-size: 28px; font-weight: 400; color: #111; margin-bottom: 18px; font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.5px; }
+        
+        .greeting-thanks { color: #444; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; }
+        .greeting-thanks .booking-id { font-weight: 700; font-size: 13px; color: #111; }
+        .greeting-thanks .booking-id span { color: #666; font-weight: 400; font-size: 11.5px; margin-right: 15px; }
 
-        .page {
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 0;
-        }
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 11px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }
+        
+        .detail-table { width: 100%; border-collapse: collapse; }
+        .detail-table td { padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .detail-table tr:first-child td { border-top: 1px solid #f3f4f6; }
+        .detail-table td.label { width: 35%; color: #666; font-weight: 400; }
+        .detail-table td.value { width: 65%; text-align: right; color: #111; font-weight: 600; }
+        .detail-table td.value.green { color: #0d9488; }
 
-        /* ── HEADER (kept as-is) ── */
-        .hero {
-            background: linear-gradient(135deg, #0f2060 0%, #1e3a8a 40%, #2563eb 100%);
-            padding: 30px 45px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .brand-box {
-            background: rgba(255,255,255,0.95);
-            padding: 10px 20px;
-            border-radius: 8px;
-        }
-        .brand-box img { max-width: 130px; height: auto; display: block; }
-        .brand-text { font-size: 20px; font-weight: 900; color: #1e3a8a; letter-spacing: 2px; }
-        .hero-left { text-align: left; }
-        .hero-left .doc-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; display: block; }
-        .hero-left .doc-subtitle { font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 3px; }
+        .acc-wrapper { margin-bottom: 40px; }
+        .acc-subtitle { font-size: 10px; font-weight: 700; color: #111; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .acc-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .acc-left .acc-title { font-weight: 700; font-size: 13.5px; color: #111; margin-bottom: 4px; }
+        .acc-left .acc-desc { color: #666; font-size: 11.5px; }
+        .acc-right { text-align: right; color: #111; font-size: 11.5px; }
+        .acc-right div { margin-bottom: 4px; }
 
-        /* ── GREEN STATUS BAR ── */
-        .status-bar {
-            background: #16a34a;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-align: center;
-            padding: 9px;
-        }
+        /* Price Table */
+        .price-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .price-table th { border-bottom: 1px solid #111; padding: 8px 0; text-align: right; color: #111; font-weight: 600; font-size: 10.5px; }
+        .price-table th:first-child, .price-table th:nth-child(2) { text-align: left; }
+        .price-table td { padding: 10px 0; border-bottom: 1px solid #f3f4f6; text-align: right; font-size: 11.5px; color: #111; }
+        .price-table td:first-child, .price-table td:nth-child(2) { text-align: left; }
 
-        /* ── BODY CONTENT ── */
-        .body {
-            padding: 30px 45px 40px;
-        }
+        /* Billing Summary */
+        .billing-summary { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .billing-summary td { padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .billing-summary td.label { color: #444; font-size: 11.5px; }
+        .billing-summary td.value { text-align: right; font-weight: 600; color: #111; font-size: 11.5px; }
+        .billing-summary tr.total td { font-size: 13px; font-weight: 700; color: #111; border-bottom: 1px solid #111; }
+        
+        .payment-summary { margin-top: 15px; padding-left: 15px; border-left: 3px solid #fbbf24; width: 40%; margin-left: auto; }
+        .payment-summary table { width: 100%; }
+        .payment-summary td { padding: 4px 0; font-size: 11px; color: #444; }
+        .payment-summary td.value { text-align: right; color: #111; }
+        .payment-summary tr.balance td { font-weight: 700; margin-top: 5px; color: #111; font-size: 12px; }
 
-        /* ── VOUCHER ID ROW ── */
-        .voucher-id-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-        }
-        .voucher-id {
-            font-size: 20px;
-            font-weight: 800;
-            color: #1e3a8a;
-            letter-spacing: 1px;
-        }
-        .voucher-date {
-            font-size: 12px;
-            color: #64748b;
-        }
+        /* Property Info */
+        .prop-info-box { margin-bottom: 40px; }
+        .prop-info-box h3 { font-size: 13.5px; font-weight: 700; color: #111; margin-bottom: 6px; }
+        .prop-info-box p { color: #444; margin-bottom: 5px; line-height: 1.4; }
+        .prop-info-box .icon { color: #d946ef; margin-right: 6px; font-size: 12px; display: inline-block; width: 14px; text-align: center; }
+        .prop-info-box .icon-email { color: #666; }
 
-        /* ── SECTION TITLE ── */
-        .section-title {
-            background: #1e3a8a;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 8px 15px;
-            margin-bottom: 0;
-        }
+        /* Policies */
+        .policies ul { list-style-type: none; padding-left: 0; }
+        .policies li { position: relative; padding-left: 14px; margin-bottom: 8px; color: #444; font-size: 11px; line-height: 1.5; }
+        .policies li::before { content: "•"; position: absolute; left: 0; color: #666; font-size: 14px; line-height: 1; top: 1px; }
 
-        /* ── TABLE ── */
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #d1d5db;
-            margin-bottom: 25px;
-        }
-
-        .info-table tr:nth-child(even) td {
-            background-color: #f8fafc;
-        }
-
-        .info-table td {
-            padding: 10px 15px;
-            border-bottom: 1px solid #e5e7eb;
-            vertical-align: top;
-            line-height: 1.5;
-        }
-
-        .info-table td.label {
-            width: 38%;
-            font-weight: 600;
-            color: #374151;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .info-table td.value {
-            color: #111827;
-            font-size: 13px;
-        }
-
-        .info-table td.value strong {
-            font-weight: 700;
-        }
-
-        /* ── HIGHLIGHT ROW (Total) ── */
-        .info-table tr.total-row td {
-            background: #eff6ff !important;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .info-table tr.total-row td.value {
-            color: #1e3a8a;
-            font-size: 16px;
-        }
-
-        /* ── STATUS BADGE ── */
-        .badge-paid {
-            display: inline-block;
-            background: #dcfce7;
-            color: #166534;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 20px;
-            text-transform: uppercase;
-        }
-
-        /* ── NIGHTS DISPLAY ── */
-        .nights-pill {
-            display: inline-block;
-            background: #eff6ff;
-            color: #1e3a8a;
-            font-weight: 700;
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            border: 1px solid #bfdbfe;
-        }
-
-        /* ── POLICY BOX ── */
-        .policy-box {
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 18px 20px;
-            margin-bottom: 0;
-        }
-
-        .policy-box h4 {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #374151;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .policy-box p {
-            font-size: 11.5px;
-            color: #4b5563;
-            margin-bottom: 6px;
-            line-height: 1.6;
-        }
-
-        .policy-box p:last-child { margin-bottom: 0; }
-
-        /* ── FOOTER ── */
-        .footer {
-            border-top: 1px solid #e5e7eb;
-            padding: 18px 45px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .footer .contact {
-            font-weight: 600;
-            color: #1e3a8a;
-        }
+        /* Footer */
+        .footer { text-align: center; margin-top: 40px; padding-top: 25px; border-top: 1px solid #e5e7eb; font-size: 10.5px; color: #111; }
+        .footer p { margin-bottom: 6px; }
+        .footer strong { font-weight: 600; }
     </style>
 </head>
 <body>
 <div class="page">
+    
+    <!-- Top Info -->
+    <div class="top-info">
+        <span>{{bookingDateFormatted}}</span>
+        <span>Booking Voucher — {{id}}</span>
+    </div>
 
-    <!-- ── HEADER (not changed) ── -->
-    <div class="hero">
-        <div class="hero-left">
-            <span class="doc-title">Booking Voucher</span>
-            <span class="doc-subtitle">Travel Confirmed</span>
-            <div style="margin-top: 8px; font-size: 11px; color: rgba(255,255,255,0.85); letter-spacing: 0.5px;">GST: 19ABBCS5396NIZI</div>
+    <!-- Header -->
+    <div class="header-content">
+        <div class="property-header-info">
+            <h2>Say Trip Hospitality Private Limited</h2>
+            <p>booking@sayrooms.com</p>
+            <p>www.sayrooms.com</p>
+            <p>GSTIN: 19ABBCS5396NIZI</p>
         </div>
-        <div class="brand-box">
+        <div class="logo">
             {{#if logoBase64}}
                 <img src="{{logoBase64}}" alt="Sayrooms" />
             {{else}}
@@ -222,136 +110,180 @@
             {{/if}}
         </div>
     </div>
-    <div class="status-bar">&#10003; &nbsp; Booking Confirmed &amp; Payment Received</div>
 
-    <!-- ── BODY ── -->
-    <div class="body">
+    <!-- Banner -->
+    <div class="banner">
+        Your booking is confirmed. Please present this voucher at check-in.
+    </div>
 
-        <!-- Voucher Ref Row -->
-        <div class="voucher-id-row">
-            <div>
-                <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Booking Voucher No.</div>
-                <div class="voucher-id">{{id}}</div>
+    <!-- Greeting -->
+    <div class="greeting">
+        <div class="greeting-badge">Booking Confirmed</div>
+        <div class="greeting-hi">Hi {{customerName}},</div>
+        <div class="greeting-title">Your booking is confirmed</div>
+        <div class="greeting-thanks">
+            <div>Thank you for choosing <strong>{{propertyName}}</strong>. Please present this voucher at check-in.</div>
+            <div class="booking-id"><span>Booking ID</span> {{id}}</div>
+        </div>
+    </div>
+
+    <!-- Stay Details -->
+    <div class="section">
+        <div class="section-title">Stay Details</div>
+        <table class="detail-table">
+            <tr>
+                <td class="label">Property</td>
+                <td class="value">{{propertyName}}</td>
+            </tr>
+            <tr>
+                <td class="label">Check-in</td>
+                <td class="value">{{checkInFormatted}} - {{checkInTime}}</td>
+            </tr>
+            <tr>
+                <td class="label">Check-out</td>
+                <td class="value">{{checkOutFormatted}} - {{checkOutTime}}</td>
+            </tr>
+            <tr>
+                <td class="label">Duration</td>
+                <td class="value">{{nights}} Night(s)</td>
+            </tr>
+            <tr>
+                <td class="label">Rooms</td>
+                <td class="value">{{roomQuantity}} Room(s)</td>
+            </tr>
+            <tr>
+                <td class="label">Channel</td>
+                <td class="value">Sayrooms</td>
+            </tr>
+            <tr>
+                <td class="label">Status</td>
+                <td class="value green">Confirmed</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Guest Details -->
+    <div class="section">
+        <div class="section-title">Guest Details</div>
+        <table class="detail-table">
+            <tr>
+                <td class="label">Guest Name</td>
+                <td class="value">{{customerName}}</td>
+            </tr>
+            <tr>
+                <td class="label">Email</td>
+                <td class="value">{{customerEmail}}</td>
+            </tr>
+            <tr>
+                <td class="label">Phone</td>
+                <td class="value">{{customerPhone}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Accommodations -->
+    <div class="section acc-wrapper">
+        <div class="section-title">Accommodations</div>
+        <div class="acc-subtitle">Accommodation</div>
+        <div class="acc-row">
+            <div class="acc-left">
+                <div class="acc-title">{{roomType}}</div>
+                <div class="acc-desc">Room Only &bull; {{roomQuantity}} Room(s)</div>
             </div>
-            <div style="text-align:right;">
-                <div style="font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Date Issued</div>
-                <div style="font-weight:600;">{{bookingDateFormatted}}</div>
+            <div class="acc-right">
+                <div>{{adults}} Adult(s)</div>
+                <div>{{children}} Child(ren)</div>
             </div>
         </div>
+    </div>
 
-        <!-- ── PROPERTY & STAY DETAILS ── -->
-        <div class="section-title">Booking Summary</div>
-        <table class="info-table">
+    <!-- Price Breakdown -->
+    <div class="section">
+        <div class="section-title">Price Breakdown</div>
+        <table class="price-table">
             <tr>
-                <td class="label">Property Name</td>
-                <td class="value"><strong>{{propertyName}}</strong></td>
+                <th>Date</th>
+                <th>Room Type</th>
+                <th>Rate</th>
+                <th>Tax</th>
+                <th>Total</th>
             </tr>
             <tr>
-                <td class="label">Address / Location</td>
-                <td class="value">{{propertyAddress}}</td>
+                <td>{{checkInFormatted}}</td>
+                <td>{{roomType}}</td>
+                <td>&#8377;{{basePrice}}</td>
+                <td>&#8377;{{taxes}}</td>
+                <td>&#8377;{{totalPrice}}</td>
             </tr>
+        </table>
+
+        <!-- Billing Summary -->
+        <div class="section-title">Billing Summary</div>
+        <table class="billing-summary">
             <tr>
-                <td class="label">Room Type</td>
-                <td class="value">{{roomType}}</td>
-            </tr>
-            <tr>
-                <td class="label">Number of Rooms</td>
-                <td class="value">{{roomQuantity}}</td>
-            </tr>
-            <tr>
-                <td class="label">Check-In Date</td>
-                <td class="value"><strong>{{checkInFormatted}}</strong> &nbsp;|&nbsp; From 14:00 hrs</td>
-            </tr>
-            <tr>
-                <td class="label">Check-Out Date</td>
-                <td class="value"><strong>{{checkOutFormatted}}</strong> &nbsp;|&nbsp; Before 11:00 hrs</td>
-            </tr>
-            <tr>
-                <td class="label">Duration of Stay</td>
-                <td class="value"><span class="nights-pill">{{nights}} Night(s)</span></td>
-            </tr>
-            <tr>
-                <td class="label">Guests</td>
-                <td class="value">{{adults}} Adult(s) &nbsp;&bull;&nbsp; {{children}} Child(ren)</td>
-            </tr>
-            <tr>
-                <td class="label">Base Price</td>
+                <td class="label">Total Room Price (excl. tax)</td>
                 <td class="value">&#8377;{{basePrice}}</td>
             </tr>
             <tr>
-                <td class="label">Taxes &amp; Fees</td>
+                <td class="label">Total Tax</td>
                 <td class="value">&#8377;{{taxes}}</td>
             </tr>
-            <tr class="total-row">
-                <td class="label">Total Amount Paid</td>
-                <td class="value">&#8377;{{totalPrice}} &nbsp; <span class="badge-paid">Paid &#10003;</span></td>
-            </tr>
-            <tr>
-                <td class="label">Payment Mode</td>
-                <td class="value">Online &mdash; Cashfree Payments</td>
+            <tr class="total">
+                <td class="label">Total Amount (incl. tax)</td>
+                <td class="value">&#8377;{{totalPrice}}</td>
             </tr>
         </table>
 
-        <!-- ── GUEST DETAILS ── -->
-        <div class="section-title">Guest Information</div>
-        <table class="info-table">
-            <tr>
-                <td class="label">Primary Guest Name</td>
-                <td class="value"><strong>{{customerName}}</strong></td>
-            </tr>
-            <tr>
-                <td class="label">Mobile Number</td>
-                <td class="value">{{customerPhone}}</td>
-            </tr>
-            <tr>
-                <td class="label">Email Address</td>
-                <td class="value">{{customerEmail}}</td>
-            </tr>
-        </table>
-
-        <!-- ── PROPERTY MANAGER DETAILS ── -->
-        <div class="section-title">Property Manager / Host Details</div>
-        <table class="info-table">
-            <tr>
-                <td class="label">Host / Manager Name</td>
-                <td class="value"><strong>{{hostName}}</strong></td>
-            </tr>
-            <tr>
-                <td class="label">Primary Contact</td>
-                <td class="value">{{hostContactPhone}}</td>
-            </tr>
-            {{#if hostAlternatePhone}}
-            <tr>
-                <td class="label">Alternate Contact</td>
-                <td class="value">{{hostAlternatePhone}}</td>
-            </tr>
-            {{/if}}
-            <tr>
-                <td class="label">Host Email</td>
-                <td class="value">{{hostContactEmail}}</td>
-            </tr>
-        </table>
-
-        <!-- ── POLICIES ── -->
-        <div class="policy-box">
-            <h4>Important Information &amp; Policies</h4>
-            {{#if cancellationPolicy}}
-            <p><strong>Cancellation Policy:</strong> {{cancellationPolicy}}</p>
-            {{/if}}
-            {{#if houseRules}}
-            <p><strong>House Rules:</strong> {{houseRules}}</p>
-            {{/if}}
-            <p>&#8226; A valid Government-issued photo ID (Aadhar Card, Passport, or Driving License) is mandatory for all guests at check-in. PAN cards are not accepted.</p>
-            <p>&#8226; This voucher is valid only for the dates and property mentioned above. Please carry a printed or digital copy at check-in.</p>
-            <p>&#8226; For any booking support, contact us at booking@sayrooms.com.</p>
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <table>
+                <tr>
+                    <td class="label">Total Charged</td>
+                    <td class="value">&#8377;{{totalPrice}}</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Paid</td>
+                    <td class="value">&#8377;{{totalPrice}}</td>
+                </tr>
+                <tr class="balance">
+                    <td class="label">Balance Due</td>
+                    <td class="value">&#8377;0.00</td>
+                </tr>
+            </table>
         </div>
-
     </div>
 
-    <!-- ── FOOTER ── -->
+    <!-- Property Information -->
+    <div class="section prop-info-box">
+        <div class="section-title">Property Information</div>
+        <h3>{{propertyName}}</h3>
+        <p>{{propertyAddress}}</p>
+        <p><span class="icon">&#9990;</span> {{hostContactPhone}}</p>
+        <p><span class="icon icon-email">&#9993;</span> {{hostContactEmail}}</p>
+    </div>
+
+    <!-- Policies -->
+    <div class="section policies">
+        <div class="section-title">Cancellation Policy</div>
+        <ul>
+            {{#if cancellationPolicy}}
+            <li>{{cancellationPolicy}}</li>
+            {{else}}
+            <li>Free cancellation up to 48 hours before check-in.</li>
+            {{/if}}
+            {{#if houseRules}}
+            <li>{{houseRules}}</li>
+            {{/if}}
+            <li>A valid Government-issued photo ID (Aadhar Card, Passport, or Driving License) is mandatory for all guests at check-in. PAN cards are not accepted.</li>
+            <li>This voucher is valid only for the dates and property mentioned above. Please carry a printed or digital copy at check-in.</li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
     <div class="footer">
-        <span>&copy; {{year}} Sayrooms &mdash; This is a computer-generated document. No signature required.</span>
-        <span class="contact">booking@sayrooms.com &nbsp;|&nbsp; www.sayrooms.com</span>
+        <p>This is an official booking record &bull; Booking ID: <strong>{{id}}</strong></p>
+        <p>Generated on {{bookingDateFormatted}}</p>
+        <p>Powered by <strong>Sayrooms</strong></p>
     </div>
 
 </div>

@@ -270,9 +270,114 @@ const sendVoucherEmailWithAttachment = async (booking, pdfBuffer) => {
   }
 };
 
+const sendHotelierVoucherEmailWithAttachment = async (booking, pdfBuffer) => {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+    console.warn('SendGrid is not configured. Hotelier Voucher email will not be sent.');
+    return;
+  }
+
+  if (!booking.hostContactEmail) {
+    console.warn('No host contact email provided. Hotelier Voucher email will not be sent.');
+    return;
+  }
+
+  const msg = {
+    to: booking.hostContactEmail,
+    cc: 'booking@sayrooms.com',
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: `New Booking! Hotelier Voucher - Sayrooms (Booking #${booking.id})`,
+    text: `Hello ${booking.hostName || 'Property Manager'},\n\nYou have a new booking at ${booking.propertyName || 'Sayrooms'}! Please find the hotelier voucher attached.\n\nCheck-In: ${new Date(booking.checkIn).toLocaleDateString()}\nCheck-Out: ${new Date(booking.checkOut).toLocaleDateString()}\n\nGuest Name: ${booking.customerName}\n\nThank you for partnering with Sayrooms!`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Booking on Sayrooms</title>
+      <style>
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; }
+      </style>
+      </head>
+      <body style="background-color: #f3f4f6; margin: 0 !important; padding: 0 !important;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f3f4f6; padding: 40px 10px;">
+        <tr>
+          <td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+              <tr>
+                <td align="center" style="background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%); padding: 30px 20px;">
+                  <span style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 2px;">SAYROOMS</span>
+                </td>
+              </tr>
+              <tr>
+                <td align="left" style="padding: 40px 40px 10px 40px;">
+                  <h2 style="margin: 0; font-size: 24px; font-weight: 800; color: #111827;">New Booking Alert! 🛎️</h2>
+                  <p style="margin: 15px 0 0 0; font-size: 16px; color: #4b5563; line-height: 24px;">
+                    Hi <strong>${booking.hostName || 'Property Manager'}</strong>,<br><br>
+                    You have received a new booking at <strong>${booking.propertyName || 'Sayrooms'}</strong>. We have attached the official hotelier voucher as a PDF to this email.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td align="left" style="padding: 20px 40px 30px 40px;">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 25px;">
+                    <tr>
+                      <td style="padding-bottom: 20px;">
+                        <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Booking Reference</p>
+                        <p style="margin: 0; font-size: 20px; color: #111827; font-weight: 800;">#${booking.id}</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-bottom: 20px;">
+                        <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Guest Name</p>
+                        <p style="margin: 0; font-size: 18px; color: #111827; font-weight: 600;">${booking.customerName}</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-bottom: 20px;">
+                        <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Check-In</p>
+                        <p style="margin: 0; font-size: 18px; color: #111827; font-weight: 600;">${new Date(booking.checkIn).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Check-Out</p>
+                        <p style="margin: 0; font-size: 18px; color: #111827; font-weight: 600;">${new Date(booking.checkOut).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      </body>
+      </html>
+    `,
+    attachments: [
+      {
+        content: Buffer.from(pdfBuffer).toString('base64'),
+        filename: `Sayrooms_Hotelier_Voucher_${booking.id}.pdf`,
+        type: 'application/pdf',
+        disposition: 'attachment'
+      }
+    ]
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Hotelier Voucher email sent to ${booking.hostContactEmail} with PDF attachment`);
+  } catch (error) {
+    console.error('Error sending hotelier voucher email:', error);
+  }
+};
+
 module.exports = {
   sendBookingConfirmationEmail,
   sendPackageEnquiryEmail,
   sendPartnerRegistrationEmail,
-  sendVoucherEmailWithAttachment
+  sendVoucherEmailWithAttachment,
+  sendHotelierVoucherEmailWithAttachment
 };

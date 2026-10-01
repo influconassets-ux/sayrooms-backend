@@ -1,7 +1,7 @@
 const { Worker } = require('bullmq');
 const prisma = require('../prismaClient');
-const { generateVoucherPDF } = require('../services/pdfService');
-const { sendVoucherEmailWithAttachment } = require('../utils/emailService');
+const { generateVoucherPDF, generateHotelierVoucherPDF } = require('../services/pdfService');
+const { sendVoucherEmailWithAttachment, sendHotelierVoucherEmailWithAttachment } = require('../utils/emailService');
 
 const connection = { 
   host: process.env.REDIS_HOST || '127.0.0.1', 
@@ -72,16 +72,24 @@ const worker = new Worker('booking-notifications', async job => {
       return;
     }
 
-    // 2. Generate PDF
+    // 2. Generate PDF for customer
     console.log(`[Worker] Generating PDF for booking #${bookingId}...`);
     const pdfBuffer = await generateVoucherPDF(booking);
     
-    // 3. Send Email
+    // 3. Send Email to customer
     console.log(`[Worker] Sending email with attachment for booking #${bookingId}...`);
     await sendVoucherEmailWithAttachment(
       booking,
       pdfBuffer
     );
+
+    // 4. Generate and send PDF to property manager
+    if (booking.hostContactEmail) {
+      console.log(`[Worker] Generating Hotelier PDF for booking #${bookingId}...`);
+      const hotelierPdfBuffer = await generateHotelierVoucherPDF(booking);
+      console.log(`[Worker] Sending hotelier email for booking #${bookingId}...`);
+      await sendHotelierVoucherEmailWithAttachment(booking, hotelierPdfBuffer);
+    }
 
     console.log(`[Worker] Job completed successfully for booking #${bookingId}`);
   } catch (error) {

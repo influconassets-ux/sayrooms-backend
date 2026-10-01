@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotelier Voucher</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #000000; font-size: 11px; line-height: 1.4; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { max-width: 820px; margin: 0 auto; padding: 20px 30px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 10px; }
+        .logo-section { display: flex; flex-direction: column; }
+        .logo-section img { max-width: 130px; max-height: 80px; width: auto; height: auto; display: block; object-fit: contain; margin-bottom: 15px; }
+        .brand-text { font-size: 20px; font-weight: 800; color: #0d47a1; margin-bottom: 5px; }
+        .voucher-title { font-size: 22px; font-weight: bold; font-family: Georgia, serif; }
+        
+        .property-info { text-align: right; }
+        .property-info h2 { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+        .property-info p { font-size: 10px; color: #555; max-width: 250px; }
+        
+        .top-box { border: 1px solid #e0e0e0; display: flex; margin-bottom: 15px; }
+        
+        .guest-col { width: 50%; padding: 15px; border-right: 1px dashed #ccc; background-color: #f9f9f9; }
+        .detail-heading { font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase; margin-bottom: 2px; }
+        .primary-guest { display: flex; align-items: center; margin-bottom: 15px; font-size: 14px; font-weight: bold; }
+        .primary-guest span { margin-left: 5px; text-decoration: underline; }
+        
+        .check-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .check-col { width: 48%; }
+        .check-val { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+        .check-time { font-size: 10px; font-weight: bold; }
+        
+        .guest-count { font-size: 12px; font-weight: bold; }
+        
+        .booking-col { width: 50%; padding: 15px; display: flex; flex-wrap: wrap; }
+        .b-item { width: 50%; margin-bottom: 15px; }
+        .b-val { font-size: 12px; font-weight: bold; }
+        .b-val.red { font-weight: bold; }
+        .b-val.red img { vertical-align: middle; height: 12px; margin-right: 4px; }
+        
+        .room-section { border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 15px; }
+        .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif; }
+        .room-title { font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        .room-details { margin-left: 15px; border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 10px; }
+        .room-tags { font-size: 10px; color: #333; margin-bottom: 8px; }
+        .room-tags span { margin-right: 15px; }
+        
+        .policy-title { font-size: 10px; font-weight: bold; margin-bottom: 4px; }
+        .policy-text { font-size: 9px; color: #444; line-height: 1.3; }
+        
+        .payment-section { border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 15px; }
+        .pay-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .pay-item { width: 48%; }
+        .pay-label { font-size: 11px; color: #555; }
+        .pay-val { font-size: 12px; font-weight: bold; }
+        .pay-note { font-size: 9px; color: #666; }
+        
+        .breakup-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 9px; }
+        .breakup-table th { border-bottom: 1px solid #ccc; padding: 6px 4px; text-align: right; color: #111; font-weight: bold; vertical-align: bottom; }
+        .breakup-table th:first-child { text-align: left; }
+        .breakup-table td { padding: 6px 4px; border-bottom: 1px solid #eee; text-align: right; }
+        .breakup-table td:first-child { text-align: left; }
+        .room-name-row { font-size: 10px; color: #0d47a1; font-weight: bold; padding: 6px 4px; }
+        
+        .grand-total { border-top: 1px solid #000; border-bottom: 1px solid #000; font-weight: bold; font-size: 10px; }
+        .grand-total td { padding: 8px 4px; }
+        
+        .promo-applied { font-size: 10px; font-weight: bold; margin-top: 5px; margin-bottom: 5px; }
+        .promo-applied span { font-weight: normal; margin-right: 15px; }
+        
+        .final-calc { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 20px; }
+        .final-calc td { padding: 5px 4px; border-bottom: 1px solid #eee; }
+        .final-calc td:last-child { text-align: right; font-weight: bold; }
+        .final-calc .bold-row td { font-weight: bold; font-size: 10px; background-color: #f9f9f9; }
+        .final-calc .payable-row td { font-weight: bold; font-size: 12px; border-bottom: 1px solid #000; border-top: 1px solid #000; padding: 8px 4px; }
+        
+        .notes-section { font-size: 9px; color: #333; line-height: 1.4; margin-bottom: 20px; }
+        .notes-section h3 { font-size: 11px; font-weight: bold; margin-bottom: 5px; }
+        .notes-section ul { padding-left: 15px; margin-bottom: 10px; }
+        .notes-section li { margin-bottom: 3px; }
+        
+        .company-details { border-top: 2px solid #0d47a1; border-bottom: 1px solid #ccc; padding: 10px 0; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .company-col { width: 48%; }
+        .company-col h3 { font-size: 11px; font-weight: bold; color: #0d47a1; margin-bottom: 5px; }
+        .company-col p { font-size: 10px; color: #444; line-height: 1.3; }
+        .contact-info { font-weight: bold; }
+        
+        .footer-note { font-size: 9px; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+<div class="page">
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="property-info" style="text-align: left;">
+            <h2>{{propertyName}}</h2>
+            <p>{{propertyAddress}}</p>
+            <div class="voucher-title" style="margin-top: 15px;">Hotelier Voucher</div>
+        </div>
+        <div class="logo-section" style="align-items: flex-end; justify-content: flex-start;">
+            {{#if logoBase64}}
+                <img src="{{logoBase64}}" alt="Sayrooms" style="margin-bottom: 0;" />
+            {{else}}
+                <span class="brand-text">SAYROOMS</span>
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Top Box -->
+    <div class="top-box">
+        <!-- Left Col -->
+        <div class="guest-col">
+            <div class="detail-heading">PRIMARY GUEST DETAILS</div>
+            <div class="primary-guest">
+                &#128188; <span>{{customerName}}</span>
+            </div>
+            
+            <div class="check-row">
+                <div class="check-col">
+                    <div class="detail-heading">CHECK-IN</div>
+                    <div class="check-val">{{checkInFormatted}}</div>
+                    <div class="check-time">{{checkInTime}}</div>
+                </div>
+                <div class="check-col">
+                    <div class="detail-heading">CHECK-OUT</div>
+                    <div class="check-val">{{checkOutFormatted}} ({{nights}} Night(s))</div>
+                    <div class="check-time">{{checkOutTime}}</div>
+                </div>
+            </div>
+            
+            <div class="detail-heading">TOTAL NO. OF GUEST(S)</div>
+            <div class="guest-count">{{adults}} Adult(s) {{#if children}}, {{children}} Child(ren){{/if}}</div>
+        </div>
+        
+        <!-- Right Col -->
+        <div class="booking-col">
+            <div class="b-item">
+                <div class="detail-heading">BOOKING ID</div>
+                <div class="b-val">{{id}}</div>
+            </div>
+            <div class="b-item">
+                <div class="detail-heading">BOOKED ON</div>
+                <div class="b-val red">{{bookingDateFormatted}}</div>
+            </div>
+            <div class="b-item">
+                <div class="detail-heading">BOOKING STATUS</div>
+                <div class="b-val">Confirmed</div>
+            </div>
+            <div class="b-item">
+                <div class="detail-heading">PAYMENT STATUS</div>
+                <div class="b-val">Paid Online</div>
+            </div>
+            <div class="b-item">
+                <div class="detail-heading">BOOKED VIA</div>
+                <div class="b-val">Sayrooms</div>
+            </div>
+            <div class="b-item">
+                <div class="detail-heading">BOOKING TYPE</div>
+                <div class="b-val">Prepaid</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Section -->
+    <div class="room-section">
+        <div class="section-title">{{roomQuantity}} Room(s)</div>
+        <div class="room-title">{{roomQuantity}} x {{roomType}}</div>
+        
+        <div class="room-details">
+            <div class="room-tags">
+                <span>&#9679; {{adults}} Adults</span>
+                <span>&#9679; Room Only</span>
+            </div>
+            <div class="policy-title">Cancellation Policy</div>
+            <div class="policy-text">
+                &#9679; {{#if cancellationPolicy}}{{cancellationPolicy}}{{else}}Free cancellation up to 48 hours before check-in. Cancellations are only allowed before CheckIn.{{/if}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="payment-section">
+        <div class="section-title">Payment</div>
+        <div class="pay-row">
+            <div class="pay-item">
+                <div class="pay-label">Property Gross Charges</div>
+                <div class="pay-val">&#8377; {{totalPrice}}</div>
+            </div>
+            <div class="pay-item">
+                <div class="pay-label">Payable to Property</div>
+                <div class="pay-val">&#8377; {{totalPrice}}</div>
+            </div>
+        </div>
+        <div class="pay-note">Sayrooms will release payment by {{checkOutFormatted}}. Payment generally takes 3-4 days to get credited to your account post release from our side.</div>
+    </div>
+
+    <!-- Room wise Payment Breakup -->
+    <div class="section-title">Room wise Payment Breakup <sup style="font-size:7px;">(in &#8377;)</sup></div>
+    <table class="breakup-table">
+        <tr>
+            <th>Date</th>
+            <th>Room Type</th>
+            <th>Amount + GST</th>
+            <th>Total Amount</th>
+        </tr>
+        <tr>
+            <td colspan="4" class="room-name-row">{{roomType}} (Room 1)</td>
+        </tr>
+        <tr>
+            <td>{{checkInFormatted}}</td>
+            <td>{{roomType}}</td>
+            <td>{{totalPrice}}</td>
+            <td>{{totalPrice}}</td>
+        </tr>
+        <tr class="grand-total">
+            <td>GRAND TOTAL</td>
+            <td></td>
+            <td>{{totalPrice}}</td>
+            <td>{{totalPrice}}</td>
+        </tr>
+    </table>
+
+    <div class="promo-applied">
+        Promotion Applied: <span>None</span>
+        Rate Type: <span>Standard Rate</span>
+    </div>
+
+    <div class="section-title" style="margin-top: 15px;">Final Calculation</div>
+    <table class="final-calc">
+        <tr>
+            <td>1. Amount</td>
+            <td>&#8377; {{basePrice}}</td>
+        </tr>
+        <tr>
+            <td>2. GST Amount</td>
+            <td>&#8377; {{taxes}}</td>
+        </tr>
+        <tr class="payable-row">
+            <td>Total Amount</td>
+            <td>&#8377; {{totalPrice}}</td>
+        </tr>
+    </table>
+
+    <!-- Notes -->
+    <div class="notes-section">
+        <h3>Note :</h3>
+        <ul>
+            <li>Property has to issue invoice to customers for 'Property Gross Charges' in compliance with applicable tax laws.</li>
+            <li>Under no circumstances, you must charge guests for services listed in this voucher. Only payments for extra services are to be collected from guests.</li>
+            <li>Please carry a valid id proof like Aadhar, Driving license, Voter-id card etc. PAN card is not a valid proof.</li>
+            {{#if houseRules}}
+            <li>{{houseRules}}</li>
+            {{/if}}
+        </ul>
+        
+        <h3 style="margin-top: 10px;">Sayrooms Details</h3>
+        <div style="display: flex; margin-bottom: 10px;">
+            <div style="width: 50%;">
+                &#9679; PAN No : ABCDE1234F<br>
+                &#9679; GSTIN : 19ABCDE1234F1Z5
+            </div>
+            <div style="width: 50%;">
+                &#9679; CIN No : U12345WB2023PTC123456<br>
+                &#9679; Service Category : Reservation services for accommodation
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Contact -->
+    <div class="company-details">
+        <div class="company-col">
+            <h3>Say Trip Hospitality Private Limited</h3>
+            <p>123 Corporate Office, Sector 5<br>Salt Lake City, Kolkata<br>West Bengal - 700091, India</p>
+        </div>
+        <div class="company-col">
+            <h3>Sayrooms Contact Info</h3>
+            <p><span class="contact-info">India number :</span> +91-9876543210 (all networks)</p>
+            <p style="margin-top: 5px;">As a privileged Sayrooms partner and vendor, you can contact us easily during emergencies on above mentioned exclusive phone numbers.</p>
+        </div>
+    </div>
+    
+    <div class="footer-note">
+        Kindly avoid calling the above numbers for business development queries. For those, please contact our Business Development Managers.<br><br>
+        Note: Please do not reply to this email. It is an unmonitored mailbox. To ensure that you receive communication related to your bookings from Sayrooms, please add no-reply@sayrooms.com to your contact list and address book.
+    </div>
+
+</div>
+</body>
+</html>

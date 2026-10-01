@@ -1,8 +1,8 @@
 const fs = require('fs');
-const { generateVoucherPDF } = require('./services/pdfService');
+const { generateVoucherPDF, generateHotelierVoucherPDF } = require('./services/pdfService');
 
 const runTest = async () => {
-  console.log('Generating sample voucher PDF...');
+  console.log('Generating sample voucher PDFs...');
   
   // Dummy booking data matching Prisma schema
   const dummyBooking = {
@@ -34,6 +34,11 @@ const runTest = async () => {
     const pdfBuffer = await generateVoucherPDF(dummyBooking);
     fs.writeFileSync('sample_voucher.pdf', pdfBuffer);
     console.log('✅ Successfully created sample_voucher.pdf!');
+
+    const hotelierPdfBuffer = await generateHotelierVoucherPDF(dummyBooking);
+    fs.writeFileSync('sample_hotelier_voucher.pdf', hotelierPdfBuffer);
+    console.log('✅ Successfully created sample_hotelier_voucher.pdf!');
+
     process.exit(0);
   } catch (error) {
     console.error('Failed to generate PDF:', error);
