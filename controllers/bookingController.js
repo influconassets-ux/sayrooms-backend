@@ -22,6 +22,10 @@ exports.createBooking = async (req, res) => {
       const room = await prisma.room.findUnique({ where: { id: parseInt(roomId) } });
       if (!room) return res.status(404).json({ error: 'Room not found' });
 
+      const overrides = await prisma.roomInventory.findMany({
+        where: { roomId: parseInt(roomId), date: { gte: inDate, lt: outDate } }
+      });
+
       const overlappingBookings = await prisma.booking.findMany({
         where: {
           roomId: parseInt(roomId),
@@ -33,11 +37,34 @@ exports.createBooking = async (req, res) => {
         }
       });
 
-      const bookedQuantity = overlappingBookings.reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+      const dateArray = [];
+      let currentDate = new Date(inDate);
+      while (currentDate < outDate) {
+        dateArray.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
       const requestedQuantity = parseInt(roomQuantity) || 1;
-      
-      if (room.quantity - bookedQuantity < requestedQuantity) {
-        return res.status(400).json({ error: 'Room is no longer available for the selected dates' });
+
+      for (const d of dateArray) {
+        const dTime = d.getTime();
+        const dStr = d.toISOString().split('T')[0];
+        
+        const dayOverride = overrides.find(o => new Date(o.date).toISOString().split('T')[0] === dStr);
+        const dayQuantity = dayOverride && dayOverride.quantity !== null ? dayOverride.quantity : room.quantity;
+        const isAvailable = dayOverride ? dayOverride.isAvailable : true;
+
+        const bookedQuantity = overlappingBookings.filter(b => {
+          const bIn = new Date(b.checkIn).getTime();
+          const bOut = new Date(b.checkOut).getTime();
+          return bIn <= dTime && bOut > dTime;
+        }).reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+        
+        const availableDay = isAvailable ? Math.max(0, dayQuantity - bookedQuantity) : 0;
+        
+        if (availableDay < requestedQuantity) {
+          return res.status(400).json({ error: 'This room is no longer available for the selected dates.' });
+        }
       }
     }
 
@@ -122,10 +149,60 @@ exports.createCashfreeOrder = async (req, res) => {
   try {
     const { propertyId, propertyName, roomId, roomQuantity, adults, children, customerName, customerEmail, customerPhone, checkIn, checkOut, totalPrice, bookingType, packageDetails } = req.body;
     
-    // First, create a pending booking in the database
     const inDate = new Date(checkIn);
     const outDate = new Date(checkOut);
     
+    // Double check availability before creating order
+    if (propertyId && roomId) {
+      const room = await prisma.room.findUnique({ where: { id: parseInt(roomId) } });
+      if (!room) return res.status(404).json({ error: 'Room not found' });
+
+      const overrides = await prisma.roomInventory.findMany({
+        where: { roomId: parseInt(roomId), date: { gte: inDate, lt: outDate } }
+      });
+
+      const overlappingBookings = await prisma.booking.findMany({
+        where: {
+          roomId: parseInt(roomId),
+          status: { in: ['pending', 'confirmed'] },
+          AND: [
+            { checkIn: { lt: outDate } },
+            { checkOut: { gt: inDate } }
+          ]
+        }
+      });
+
+      const dateArray = [];
+      let currentDate = new Date(inDate);
+      while (currentDate < outDate) {
+        dateArray.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      const requestedQuantity = parseInt(roomQuantity) || 1;
+
+      for (const d of dateArray) {
+        const dTime = d.getTime();
+        const dStr = d.toISOString().split('T')[0];
+        
+        const dayOverride = overrides.find(o => new Date(o.date).toISOString().split('T')[0] === dStr);
+        const dayQuantity = dayOverride && dayOverride.quantity !== null ? dayOverride.quantity : room.quantity;
+        const isAvailable = dayOverride ? dayOverride.isAvailable : true;
+
+        const bookedQuantity = overlappingBookings.filter(b => {
+          const bIn = new Date(b.checkIn).getTime();
+          const bOut = new Date(b.checkOut).getTime();
+          return bIn <= dTime && bOut > dTime;
+        }).reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+        
+        const availableDay = isAvailable ? Math.max(0, dayQuantity - bookedQuantity) : 0;
+        
+        if (availableDay < requestedQuantity) {
+          return res.status(400).json({ error: 'This room is no longer available for the selected dates.' });
+        }
+      }
+    }
+
     const bookingData = {
       propertyId: propertyId ? parseInt(propertyId) : null,
       propertyName,
