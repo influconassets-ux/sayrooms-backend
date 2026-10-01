@@ -21,6 +21,18 @@ router.get('/check', async (req, res) => {
       where: { propertyId: pId }
     });
 
+    // Get all overrides for these rooms within the date range
+    const roomIds = rooms.map(r => r.id);
+    const overrides = await prisma.roomInventory.findMany({
+      where: {
+        roomId: { in: roomIds },
+        date: {
+          gte: inDate,
+          lt: outDate
+        }
+      }
+    });
+
     // Find all confirmed/pending bookings that overlap with the requested dates
     const overlappingBookings = await prisma.booking.findMany({
       where: {
@@ -35,17 +47,52 @@ router.get('/check', async (req, res) => {
 
     // Calculate availability per room
     const availability = {};
+
+    // Generate array of dates for the stay (excluding checkout day)
+    const dateArray = [];
+    let currentDate = new Date(inDate);
+    while (currentDate < outDate) {
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     for (const room of rooms) {
-      // Sum the booked quantity for this room in overlapping bookings
-      const bookedQuantity = overlappingBookings
-        .filter(b => b.roomId === room.id)
-        .reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+      let minAvailable = room.quantity;
+      let totalPrice = 0;
       
-      const availableQuantity = room.quantity - bookedQuantity;
+      const roomOverrides = overrides.filter(o => o.roomId === room.id);
+
+      for (const d of dateArray) {
+        const dTime = d.getTime();
+        const dStr = d.toISOString().split('T')[0];
+        
+        // Find override for this specific date
+        const dayOverride = roomOverrides.find(o => new Date(o.date).toISOString().split('T')[0] === dStr);
+        
+        const dayQuantity = dayOverride && dayOverride.quantity !== null ? dayOverride.quantity : room.quantity;
+        const dayPrice = dayOverride && dayOverride.price !== null ? dayOverride.price : room.price;
+        const isAvailable = dayOverride ? dayOverride.isAvailable : true;
+
+        // Find overlapping bookings for this specific date
+        const bookedQuantity = overlappingBookings.filter(b => {
+          const bIn = new Date(b.checkIn).getTime();
+          const bOut = new Date(b.checkOut).getTime();
+          return b.roomId === room.id && bIn <= dTime && bOut > dTime;
+        }).reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+        
+        const availableDay = isAvailable ? Math.max(0, dayQuantity - bookedQuantity) : 0;
+        
+        if (availableDay < minAvailable) {
+          minAvailable = availableDay;
+        }
+
+        totalPrice += dayPrice;
+      }
+
       availability[room.id] = {
         totalQuantity: room.quantity,
-        bookedQuantity: bookedQuantity,
-        available: Math.max(0, availableQuantity)
+        available: minAvailable,
+        totalBasePrice: totalPrice
       };
     }
 
@@ -149,6 +196,18 @@ router.post('/check-bulk', async (req, res) => {
       where: { propertyId: { in: pIds } }
     });
 
+    // Get all overrides for these rooms within the date range
+    const roomIds = rooms.map(r => r.id);
+    const overrides = await prisma.roomInventory.findMany({
+      where: {
+        roomId: { in: roomIds },
+        date: {
+          gte: inDate,
+          lt: outDate
+        }
+      }
+    });
+
     // Find all overlapping bookings for these properties
     const overlappingBookings = await prisma.booking.findMany({
       where: {
@@ -164,21 +223,56 @@ router.post('/check-bulk', async (req, res) => {
     // Calculate availability per property and room
     const availabilityMap = {}; // { propertyId: { roomId: { total, booked, available } } }
     
+    // Generate array of dates for the stay (excluding checkout day)
+    const dateArray = [];
+    let currentDate = new Date(inDate);
+    while (currentDate < outDate) {
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     for (const room of rooms) {
       const pId = room.propertyId;
       if (!availabilityMap[pId]) {
         availabilityMap[pId] = {};
       }
 
-      const bookedQuantity = overlappingBookings
-        .filter(b => b.roomId === room.id)
-        .reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+      let minAvailable = room.quantity;
+      let totalPrice = 0;
       
-      const availableQuantity = room.quantity - bookedQuantity;
+      const roomOverrides = overrides.filter(o => o.roomId === room.id);
+
+      for (const d of dateArray) {
+        const dTime = d.getTime();
+        const dStr = d.toISOString().split('T')[0];
+        
+        // Find override for this specific date
+        const dayOverride = roomOverrides.find(o => new Date(o.date).toISOString().split('T')[0] === dStr);
+        
+        const dayQuantity = dayOverride && dayOverride.quantity !== null ? dayOverride.quantity : room.quantity;
+        const dayPrice = dayOverride && dayOverride.price !== null ? dayOverride.price : room.price;
+        const isAvailable = dayOverride ? dayOverride.isAvailable : true;
+
+        // Find overlapping bookings for this specific date
+        const bookedQuantity = overlappingBookings.filter(b => {
+          const bIn = new Date(b.checkIn).getTime();
+          const bOut = new Date(b.checkOut).getTime();
+          return b.roomId === room.id && bIn <= dTime && bOut > dTime;
+        }).reduce((sum, b) => sum + (b.roomQuantity || 1), 0);
+        
+        const availableDay = isAvailable ? Math.max(0, dayQuantity - bookedQuantity) : 0;
+        
+        if (availableDay < minAvailable) {
+          minAvailable = availableDay;
+        }
+
+        totalPrice += dayPrice;
+      }
+
       availabilityMap[pId][room.id] = {
         totalQuantity: room.quantity,
-        bookedQuantity: bookedQuantity,
-        available: Math.max(0, availableQuantity)
+        available: minAvailable,
+        totalBasePrice: totalPrice
       };
     }
 

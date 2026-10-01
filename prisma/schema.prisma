@@ -116,6 +116,7 @@ model Room {
   size          String?
   description   String?
   images        Json?     // Array of URLs
+  inventories   RoomInventory[]
 }
 
 model NearbyPlace {
@@ -142,4 +143,16 @@ model Review {
   content   String   // Text content or Video URL
   avatar    String?  // Avatar image URL (for text reviews)
   createdAt DateTime @default(now())
+}
+
+model RoomInventory {
+  id          Int      @id @default(autoincrement())
+  roomId      Int
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  price       Float?
+  quantity    Int?
+  isAvailable Boolean  @default(true)
+
+  @@unique([roomId, date])
 }
