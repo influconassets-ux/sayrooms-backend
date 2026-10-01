@@ -184,7 +184,6 @@ const sendVoucherEmailWithAttachment = async (booking, pdfBuffer) => {
 
   const msg = {
     to: booking.customerEmail,
-    cc: 'booking@sayrooms.com', // User requested a visible copy to admin via CC
     from: process.env.SENDGRID_FROM_EMAIL,
     subject: `Your Booking Voucher - Sayrooms (Booking #${booking.id})`,
     text: `Hello ${booking.customerName},\n\nYour booking at ${booking.propertyName || 'Sayrooms'} is confirmed! Please find your booking voucher attached.\n\nCheck-In: ${new Date(booking.checkIn).toLocaleDateString()}\nCheck-Out: ${new Date(booking.checkOut).toLocaleDateString()}\n\nThank you for choosing Sayrooms!`,
@@ -283,7 +282,6 @@ const sendHotelierVoucherEmailWithAttachment = async (booking, pdfBuffer) => {
 
   const msg = {
     to: booking.hostContactEmail,
-    cc: 'booking@sayrooms.com',
     from: process.env.SENDGRID_FROM_EMAIL,
     subject: `New Booking! Hotelier Voucher - Sayrooms (Booking #${booking.id})`,
     text: `Hello ${booking.hostName || 'Property Manager'},\n\nYou have a new booking at ${booking.propertyName || 'Sayrooms'}! Please find the hotelier voucher attached.\n\nCheck-In: ${new Date(booking.checkIn).toLocaleDateString()}\nCheck-Out: ${new Date(booking.checkOut).toLocaleDateString()}\n\nGuest Name: ${booking.customerName}\n\nThank you for partnering with Sayrooms!`,
