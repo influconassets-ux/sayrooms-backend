@@ -7,7 +7,9 @@ const connection = {
   host: process.env.REDIS_HOST || '127.0.0.1', 
   port: process.env.REDIS_PORT || 6379,
   password: process.env.REDIS_PASSWORD,
-  tls: process.env.REDIS_HOST?.includes('upstash') ? {} : undefined
+  tls: process.env.REDIS_HOST?.includes('upstash') ? {} : undefined,
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false
 };
 
 // Create a worker that processes jobs from the 'booking-notifications' queue
@@ -96,7 +98,11 @@ const worker = new Worker('booking-notifications', async job => {
     console.error(`[Worker] Error processing job for booking #${bookingId}:`, error);
     throw error; // Throwing error triggers BullMQ to retry the job
   }
-}, { connection });
+}, { 
+  connection,
+  stalledInterval: 300000, // 5 minutes instead of 30s to reduce Upstash API calls
+  maxStalledCount: 0 // Disable stalled job checks to save API requests
+});
 
 worker.on('failed', (job, err) => {
   console.error(`[Worker] Job ${job.id} failed with error: ${err.message}`);

@@ -118,6 +118,7 @@ router.post('/', (req, res, next) => {
           capacity: parseInt(room.capacity) || 2,
           size: room.size || '',
           description: JSON.stringify(extraData),
+          mealPlans: room.mealPlans || null,
           images: uploadedRoomImages.length > 0 ? uploadedRoomImages : (room.images || [])
         };
     });
@@ -149,7 +150,7 @@ router.post('/', (req, res, next) => {
         
         propertyIdStr: rawData.propertyId || '',
         description: rawData.description || '',
-        tags: rawData.tags ? JSON.parse(rawData.tags) : [],
+        tags: rawData.tags && rawData.tags !== 'undefined' ? JSON.parse(rawData.tags) : [],
         
         checkInTime: '12:00 PM',
         checkOutTime: '11:00 AM',
@@ -276,12 +277,14 @@ router.put('/:id', upload.any(), async (req, res) => {
 
       return {
         type: room.type || 'Standard Room',
+        quantity: parseInt(room.count) || 1,
         price: parseFloat(room.price) || 0,
         extraAdultPrice: parseFloat(room.extraAdultPrice) || 0,
         extraChildPrice: parseFloat(room.extraChildPrice) || 0,
         capacity: parseInt(room.capacity) || 2,
         size: room.size || '',
         description: JSON.stringify(extraData),
+        mealPlans: room.mealPlans || null,
         images: finalRoomImages
       };
     });
@@ -313,7 +316,7 @@ router.put('/:id', upload.any(), async (req, res) => {
         
         propertyIdStr: rawData.propertyId || '',
         description: rawData.description || '',
-        tags: rawData.tags ? JSON.parse(rawData.tags) : [],
+        tags: rawData.tags && rawData.tags !== 'undefined' ? JSON.parse(rawData.tags) : [],
         
         checkInTime: '12:00 PM',
         checkOutTime: '11:00 AM',
@@ -349,6 +352,7 @@ router.put('/:id', upload.any(), async (req, res) => {
     res.status(200).json({ message: 'Property updated successfully', property: updatedProperty });
   } catch (error) {
     console.error('Error updating property:', error);
+    require('fs').writeFileSync('update_error.log', error.stack || error.message);
     res.status(500).json({ error: 'Failed to update property', details: error.message });
   }
 });

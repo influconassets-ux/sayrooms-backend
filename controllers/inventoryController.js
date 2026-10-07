@@ -63,11 +63,22 @@ exports.getInventoryCalendar = async (req, res) => {
       let allottedRooms = room.quantity;
       let isAvailable = true;
       let blockReason = null;
+      let mealPlans = room.mealPlans || {};
+      if (typeof mealPlans === 'string') {
+        try { mealPlans = JSON.parse(mealPlans); } catch(e) { mealPlans = {}; }
+      }
 
       const override = inventoryMap[dateKey];
       if (override) {
         if (override.price !== null) currentPrice = override.price;
         if (override.quantity !== null) allottedRooms = override.quantity;
+        if (override.mealPlans) {
+          let omp = override.mealPlans;
+          if (typeof omp === 'string') {
+            try { omp = JSON.parse(omp); } catch(e) { omp = {}; }
+          }
+          mealPlans = omp;
+        }
         isAvailable = override.isAvailable;
         blockReason = override.blockReason;
       }
@@ -97,6 +108,7 @@ exports.getInventoryCalendar = async (req, res) => {
         available: availableRooms,
         isManuallyBlocked: !isAvailable,
         blockReason: blockReason,
+        mealPlans: mealPlans,
         hasOverride: !!override
       });
     }
@@ -111,7 +123,7 @@ exports.getInventoryCalendar = async (req, res) => {
   // Update inventory for a specific day
 exports.updateInventoryDay = async (req, res) => {
   try {
-    const { roomId, date, price, quantity, isAvailable, blockReason } = req.body;
+    const { roomId, date, price, quantity, isAvailable, blockReason, mealPlans } = req.body;
     
     if (!roomId || !date) {
       return res.status(400).json({ error: 'roomId and date are required' });
@@ -128,6 +140,7 @@ exports.updateInventoryDay = async (req, res) => {
       quantity: quantity !== undefined && quantity !== '' ? parseInt(quantity) : null,
       isAvailable: isAvailable !== undefined ? Boolean(isAvailable) : true,
       blockReason: isAvailable === false ? (blockReason || null) : null,
+      mealPlans: mealPlans !== undefined ? mealPlans : null,
     };
 
     const updated = await prisma.roomInventory.upsert({

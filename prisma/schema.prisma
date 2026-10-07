@@ -116,6 +116,7 @@ model Room {
   size          String?
   description   String?
   images        Json?     // Array of URLs
+  mealPlans     Json?     // EP, CP, MAP, AP, HP rates
   inventories   RoomInventory[]
 }
 
@@ -154,6 +155,7 @@ model RoomInventory {
   quantity    Int?
   isAvailable Boolean  @default(true)
   blockReason String?
+  mealPlans   Json?
 
   @@unique([roomId, date])
 }

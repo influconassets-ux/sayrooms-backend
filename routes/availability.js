@@ -59,6 +59,7 @@ router.get('/check', async (req, res) => {
     for (const room of rooms) {
       let minAvailable = room.quantity;
       let totalPrice = 0;
+      let totalMealPlans = { EP: 0, CP: 0, MAP: 0, AP: 0, HP: 0 };
       
       const roomOverrides = overrides.filter(o => o.roomId === room.id);
 
@@ -86,13 +87,32 @@ router.get('/check', async (req, res) => {
           minAvailable = availableDay;
         }
 
+        let dayMealPlans = room.mealPlans || {};
+        if (typeof dayMealPlans === 'string') {
+          try { dayMealPlans = JSON.parse(dayMealPlans); } catch(e) { dayMealPlans = {}; }
+        }
+        if (dayOverride && dayOverride.mealPlans) {
+          let omp = dayOverride.mealPlans;
+          if (typeof omp === 'string') {
+            try { omp = JSON.parse(omp); } catch(e) { omp = {}; }
+          }
+          dayMealPlans = omp;
+        }
+        
+        totalMealPlans.EP += dayMealPlans.EP !== undefined && dayMealPlans.EP !== null && dayMealPlans.EP !== '' ? parseFloat(dayMealPlans.EP) : dayPrice;
+        totalMealPlans.CP += dayMealPlans.CP !== undefined && dayMealPlans.CP !== null && dayMealPlans.CP !== '' ? parseFloat(dayMealPlans.CP) : 0;
+        totalMealPlans.MAP += dayMealPlans.MAP !== undefined && dayMealPlans.MAP !== null && dayMealPlans.MAP !== '' ? parseFloat(dayMealPlans.MAP) : 0;
+        totalMealPlans.AP += dayMealPlans.AP !== undefined && dayMealPlans.AP !== null && dayMealPlans.AP !== '' ? parseFloat(dayMealPlans.AP) : 0;
+        totalMealPlans.HP += dayMealPlans.HP !== undefined && dayMealPlans.HP !== null && dayMealPlans.HP !== '' ? parseFloat(dayMealPlans.HP) : 0;
+
         totalPrice += dayPrice;
       }
 
       availability[room.id] = {
         totalQuantity: room.quantity,
         available: minAvailable,
-        totalBasePrice: totalPrice
+        totalBasePrice: totalPrice,
+        totalMealPlans: totalMealPlans
       };
     }
 
@@ -266,13 +286,32 @@ router.post('/check-bulk', async (req, res) => {
           minAvailable = availableDay;
         }
 
+        let dayMealPlans = room.mealPlans || {};
+        if (typeof dayMealPlans === 'string') {
+          try { dayMealPlans = JSON.parse(dayMealPlans); } catch(e) { dayMealPlans = {}; }
+        }
+        if (dayOverride && dayOverride.mealPlans) {
+          let omp = dayOverride.mealPlans;
+          if (typeof omp === 'string') {
+            try { omp = JSON.parse(omp); } catch(e) { omp = {}; }
+          }
+          dayMealPlans = omp;
+        }
+        
+        totalMealPlans.EP += dayMealPlans.EP !== undefined && dayMealPlans.EP !== null && dayMealPlans.EP !== '' ? parseFloat(dayMealPlans.EP) : dayPrice;
+        totalMealPlans.CP += dayMealPlans.CP !== undefined && dayMealPlans.CP !== null && dayMealPlans.CP !== '' ? parseFloat(dayMealPlans.CP) : 0;
+        totalMealPlans.MAP += dayMealPlans.MAP !== undefined && dayMealPlans.MAP !== null && dayMealPlans.MAP !== '' ? parseFloat(dayMealPlans.MAP) : 0;
+        totalMealPlans.AP += dayMealPlans.AP !== undefined && dayMealPlans.AP !== null && dayMealPlans.AP !== '' ? parseFloat(dayMealPlans.AP) : 0;
+        totalMealPlans.HP += dayMealPlans.HP !== undefined && dayMealPlans.HP !== null && dayMealPlans.HP !== '' ? parseFloat(dayMealPlans.HP) : 0;
+
         totalPrice += dayPrice;
       }
 
       availabilityMap[pId][room.id] = {
         totalQuantity: room.quantity,
         available: minAvailable,
-        totalBasePrice: totalPrice
+        totalBasePrice: totalPrice,
+        totalMealPlans: totalMealPlans
       };
     }
 
