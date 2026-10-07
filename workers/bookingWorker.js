@@ -52,14 +52,25 @@ const worker = new Worker('booking-notifications', async job => {
        }
     }
 
+    let mealPlan = 'Standard Rate';
+
     if (booking.roomId) {
        const room = await prisma.room.findUnique({ where: { id: booking.roomId } });
        if (room) { roomType = room.type; }
     }
 
+    if (booking.packageDetails) {
+      try {
+        const details = typeof booking.packageDetails === 'string' ? JSON.parse(booking.packageDetails) : booking.packageDetails;
+        if (details.roomType) roomType = details.roomType;
+        if (details.mealPlan) mealPlan = `${details.mealPlanCode || ''} (${details.mealPlan})`.trim();
+      } catch (e) {}
+    }
+
     // Attach all details to booking for PDF template
     booking.propertyAddress = propertyAddress;
     booking.roomType = roomType;
+    booking.mealPlan = mealPlan;
     booking.hostName = hostName;
     booking.hostContactEmail = hostContactEmail;
     booking.hostContactPhone = hostContactPhone;
