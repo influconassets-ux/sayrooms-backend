@@ -24,15 +24,28 @@ router.post('/verify', async (req, res) => {
     let user = await User.findOne({ firebaseUid: uid });
 
     if (!user) {
-      user = new User({
-        firebaseUid: uid,
-        email: email || undefined,
-        phoneNumber: phone_number || undefined,
-        displayName: name || '',
-        photoURL: picture || '',
-        provider: provider
-      });
-      await user.save();
+      // Check if user exists with the same email or phone number
+      let existingUser = null;
+      if (email) existingUser = await User.findOne({ email });
+      if (!existingUser && phone_number) existingUser = await User.findOne({ phoneNumber: phone_number });
+
+      if (existingUser) {
+        // Link the new firebaseUid to the existing account
+        existingUser.firebaseUid = uid;
+        if (!existingUser.provider) existingUser.provider = provider;
+        await existingUser.save();
+        user = existingUser;
+      } else {
+        user = new User({
+          firebaseUid: uid,
+          email: email || undefined,
+          phoneNumber: phone_number || undefined,
+          displayName: name || '',
+          photoURL: picture || '',
+          provider: provider
+        });
+        await user.save();
+      }
     } else {
       // Optional: Update user info if it has changed
       let updated = false;
@@ -48,14 +61,14 @@ router.post('/verify', async (req, res) => {
     
   } catch (error) {
     console.error('Error verifying token or syncing user:', error);
-    res.status(401).json({ error: 'Unauthorized or token expired' });
+    res.status(401).json({ error: error.message || 'Unauthorized or token expired' });
   }
 });
 
 // PUT /api/auth/profile
 // Updates the user's profile information
 router.put('/profile', async (req, res) => {
-  const { firebaseUid, displayName, email, phoneNumber, dob } = req.body;
+  const { firebaseUid, displayName, email, phoneNumber, dob, address } = req.body;
   
   if (!firebaseUid) {
     return res.status(400).json({ error: 'Missing firebaseUid' });
@@ -69,11 +82,28 @@ router.put('/profile', async (req, res) => {
     if (email) user.email = email;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (dob) user.dob = dob;
+    if (address) user.address = address;
 
     await user.save();
     res.status(200).json({ message: 'Profile updated', user });
   } catch (error) {
     console.error('Error updating profile:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Email or Phone Number is already registered to another account.' });
+    }
+    res.status(500).json({ error: error.message || 'Server error' });
+  }
+});
+
+// GET /api/auth/user/:uid
+// Fetch user details by Firebase UID
+router.get('/user/:uid', async (req, res) => {
+  try {
+    const user = await User.findOne({ firebaseUid: req.params.uid });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

@@ -110,6 +110,32 @@ exports.getAllBookings = async (req, res) => {
   }
 };
 
+exports.getUserBookings = async (req, res) => {
+  try {
+    const { email, phone } = req.query;
+    if (!email && !phone) {
+      return res.status(400).json({ error: 'Email or phone is required' });
+    }
+    
+    const conditions = [];
+    if (email) conditions.push({ customerEmail: email });
+    if (phone) conditions.push({ customerPhone: phone });
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        OR: conditions,
+        paymentStatus: 'success'
+      },
+      orderBy: { checkIn: 'desc' }
+    });
+
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch user bookings. Please try again later.' });
+  }
+};
+
 exports.getAllAdminBookings = async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({

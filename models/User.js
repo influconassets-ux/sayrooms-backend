@@ -25,6 +25,9 @@ const userSchema = new mongoose.Schema({
   dob: {
     type: String,
   },
+  address: {
+    type: String,
+  },
   provider: {
     type: String, // 'email', 'phone', 'facebook'
   },

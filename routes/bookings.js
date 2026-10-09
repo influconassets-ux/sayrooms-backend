@@ -17,6 +17,9 @@ router.post('/webhook', bookingController.cashfreeWebhook);
 // GET /api/bookings/admin/all
 router.get('/admin/all', bookingController.getAllAdminBookings);
 
+// GET /api/bookings/my/history
+router.get('/my/history', bookingController.getUserBookings);
+
 // GET /api/bookings
 router.get('/', bookingController.getAllBookings);
 
