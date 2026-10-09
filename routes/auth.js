@@ -21,7 +21,7 @@ router.post('/verify', async (req, res) => {
     const provider = firebase.sign_in_provider || 'unknown';
 
     // 2. Check if user exists in MongoDB, otherwise create them
-    let user = await User.findOne({ firebaseUid: uid });
+    let user = await User.findOne({ $or: [{ firebaseUid: uid }, { linkedUids: uid }] });
 
     if (!user) {
       // Check if user exists with the same email or phone number
@@ -32,12 +32,15 @@ router.post('/verify', async (req, res) => {
       if (existingUser) {
         // Link the new firebaseUid to the existing account
         existingUser.firebaseUid = uid;
+        if (!existingUser.linkedUids) existingUser.linkedUids = [];
+        if (!existingUser.linkedUids.includes(uid)) existingUser.linkedUids.push(uid);
         if (!existingUser.provider) existingUser.provider = provider;
         await existingUser.save();
         user = existingUser;
       } else {
         user = new User({
           firebaseUid: uid,
+          linkedUids: [uid],
           email: email || undefined,
           phoneNumber: phone_number || undefined,
           displayName: name || '',
@@ -75,7 +78,7 @@ router.put('/profile', async (req, res) => {
   }
 
   try {
-    let user = await User.findOne({ firebaseUid });
+    let user = await User.findOne({ $or: [{ firebaseUid }, { linkedUids: firebaseUid }] });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     if (displayName) user.displayName = displayName;
@@ -99,7 +102,7 @@ router.put('/profile', async (req, res) => {
 // Fetch user details by Firebase UID
 router.get('/user/:uid', async (req, res) => {
   try {
-    const user = await User.findOne({ firebaseUid: req.params.uid });
+    const user = await User.findOne({ $or: [{ firebaseUid: req.params.uid }, { linkedUids: req.params.uid }] });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.status(200).json({ user });
   } catch (error) {

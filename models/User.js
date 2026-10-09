@@ -6,6 +6,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  linkedUids: [{
+    type: String
+  }],
   email: {
     type: String,
     sparse: true,
